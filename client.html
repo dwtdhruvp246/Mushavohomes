@@ -3396,7 +3396,6 @@
                             <select class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model="propertyUnit.inspectionForm.status" required>
                               <option value="draft">Draft</option>
                               <option value="completed">Completed</option>
-                              <option value="locked">Locked</option>
                             </select>
                           </label>
                           <label class="block">
@@ -3464,11 +3463,7 @@
                           </label>
                         </div>
 
-                        <div class="grid gap-3 lg:grid-cols-[1fr_0.8fr_1fr_1.2fr]">
-                          <label class="block">
-                            <span class="mb-2 block text-sm font-medium text-slate-700">Tenant signature name</span>
-                            <input class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" type="text" x-model.trim="propertyUnit.inspectionForm.tenantSignatureName">
-                          </label>
+                        <div class="grid gap-3 lg:grid-cols-[0.8fr_1fr_1.2fr]">
                           <label class="block">
                             <span class="mb-2 block text-sm font-medium text-slate-700">Evidence type</span>
                             <select class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model="propertyUnit.inspectionForm.evidenceKind">
@@ -6114,11 +6109,14 @@
                       <template x-if="inspection.tenant_signed_at">
                         <p class="mt-3 rounded-lg bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700" x-text="`Signed on ${formatDate(inspection.tenant_signed_at)}`"></p>
                       </template>
-                      <template x-if="!inspection.tenant_signed_at">
+                      <template x-if="!inspection.tenant_signed_at && inspection.status === 'completed'">
                         <div class="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
                           <input class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" type="text" x-model.trim="tenant.inspectionSignatureName" placeholder="Type your full name to sign">
                           <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60" type="button" @click="signTenantInspection(inspection)" :disabled="tenant.loading">Sign Inspection</button>
                         </div>
+                      </template>
+                      <template x-if="!inspection.tenant_signed_at && inspection.status === 'locked'">
+                        <p class="mt-3 rounded-lg bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">This inspection was locked before a tenant signature was recorded.</p>
                       </template>
                     </article>
                   </template>
@@ -6971,7 +6969,6 @@
             comparedToInspectionId: '',
             depositDeductionAmount: 0,
             depositDeductionNotes: '',
-            tenantSignatureName: '',
             evidenceKind: 'photo',
             evidenceRoomName: '',
             evidenceCaption: '',
@@ -11787,6 +11784,31 @@
           return fallback;
         },
 
+        inspectionDatabaseError(error, fallback = 'Inspection action could not be completed.') {
+          const message = String(error?.message || error || '').trim();
+          const lower = message.toLowerCase();
+          const safeInspectionMessages = [
+            'active lease and linked tenant',
+            'permission to manage inspection',
+            'permission to manage this inspection',
+            'permission to lock this inspection',
+            'permission to add evidence',
+            'add at least one room condition',
+            'invalid inspection type',
+            'invalid inspection evidence type',
+            'comparison inspection',
+            'inspection not found or already locked',
+            'inspection evidence path',
+            'inspection evidence upload was not found',
+            'inspection evidence file size is invalid',
+            'inspection could not be signed',
+            'please enter the tenant signature name',
+            'save the inspection as draft or completed'
+          ];
+          if (safeInspectionMessages.some(fragment => lower.includes(fragment))) return message;
+          return this.friendlyDatabaseError(error, fallback);
+        },
+
         statusBadgeClass(status) {
           const classes = {
             active: 'bg-emerald-100 text-emerald-700',
@@ -12976,7 +12998,6 @@
             summaryNotes: '',
             depositDeductionAmount: 0,
             depositDeductionNotes: '',
-            tenantSignatureName: '',
             evidenceKind: type === 'move_out' ? 'deduction_evidence' : 'photo',
             evidenceRoomName: '',
             evidenceCaption: '',
@@ -13029,7 +13050,6 @@
             summaryNotes: inspection.summary_notes || '',
             depositDeductionAmount: Number(inspection.deposit_deduction_amount || 0),
             depositDeductionNotes: inspection.deposit_deduction_notes || '',
-            tenantSignatureName: inspection.tenant_signature_name || '',
             evidenceKind: inspection.inspection_type === 'move_out' ? 'deduction_evidence' : 'photo',
             evidenceRoomName: '',
             evidenceCaption: '',
@@ -13180,22 +13200,22 @@
             });
           if (uploadError) throw uploadError;
 
-          const { error: fileError } = await supabaseClient.from('inspection_files').insert({
-            inspection_id: savedInspection.id,
-            landlord_id: savedInspection.landlord_id,
-            property_id: savedInspection.property_id,
-            unit_id: savedInspection.unit_id,
-            lease_id: savedInspection.lease_id || null,
-            tenant_id: savedInspection.tenant_id || null,
-            file_kind: this.propertyUnit.inspectionForm.evidenceKind || 'photo',
-            room_name: this.propertyUnit.inspectionForm.evidenceRoomName || null,
-            caption: this.propertyUnit.inspectionForm.evidenceCaption || file.name,
-            object_path: objectPath,
-            mime_type: file.type || null,
-            file_size: file.size,
-            uploaded_by: this.profile?.id || null
+          const { error: fileError } = await supabaseClient.rpc('register_inspection_file', {
+            p_inspection_id: savedInspection.id,
+            p_file_kind: this.propertyUnit.inspectionForm.evidenceKind || 'photo',
+            p_room_name: this.propertyUnit.inspectionForm.evidenceRoomName || null,
+            p_caption: this.propertyUnit.inspectionForm.evidenceCaption || file.name,
+            p_object_path: objectPath,
+            p_mime_type: file.type || null,
+            p_file_size: file.size
           });
-          if (fileError) throw fileError;
+          if (fileError) {
+            const { error: cleanupError } = await supabaseClient.storage
+              .from(INSPECTION_FILE_BUCKET)
+              .remove([objectPath]);
+            if (cleanupError) console.error('[Mushavo inspections] orphan evidence cleanup failed', cleanupError);
+            throw fileError;
+          }
         },
 
         async saveInspection() {
@@ -13212,57 +13232,43 @@
           }
           this.propertyUnit.saving = true;
           this.propertyUnit.error = '';
+          let savedInspection = null;
+          let savePhase = 'record';
+          const wasEditing = Boolean(form.id);
           try {
-            const lease = this.currentInspectionLease() || this.propertyUnit.currentLease || {};
-            const payload = {
-              landlord_id: this.currentLandlordId(),
-              property_id: this.propertyUnit.selectedUnit.property_id,
-              unit_id: this.propertyUnit.selectedUnit.id,
-              lease_id: lease.id || null,
-              tenant_id: lease.tenant_id || null,
-              inspection_type: form.type,
-              status: form.status,
-              scheduled_for: this.datetimeInputToIso(form.scheduledFor),
-              inspected_at: this.datetimeInputToIso(form.inspectedAt) || new Date().toISOString(),
-              compared_to_inspection_id: form.comparedToInspectionId || null,
-              meter_readings: this.parseInspectionMeterReadings(form.meterReadings),
-              room_conditions: roomConditions,
-              summary_notes: form.summaryNotes || null,
-              deposit_deduction_amount: form.type === 'move_out' ? Number(form.depositDeductionAmount || 0) : 0,
-              deposit_deduction_notes: form.type === 'move_out' ? (form.depositDeductionNotes || null) : null,
-              tenant_signature_name: form.tenantSignatureName || null,
-              tenant_signed_at: form.tenantSignatureName ? new Date().toISOString() : null,
-              locked_at: form.status === 'locked' ? new Date().toISOString() : null,
-              created_by: this.profile?.id || null
-            };
+            const { data, error } = await supabaseClient.rpc('save_property_inspection', {
+              p_inspection_id: form.id || null,
+              p_unit_id: this.propertyUnit.selectedUnit.id,
+              p_inspection_type: form.type,
+              p_status: form.status,
+              p_scheduled_for: form.scheduledFor ? String(form.scheduledFor).slice(0, 10) : null,
+              p_inspected_at: this.datetimeInputToIso(form.inspectedAt) || new Date().toISOString(),
+              p_compared_to_inspection_id: form.comparedToInspectionId || null,
+              p_meter_readings: this.parseInspectionMeterReadings(form.meterReadings),
+              p_room_conditions: roomConditions,
+              p_summary_notes: form.summaryNotes || null,
+              p_deposit_deduction_amount: form.type === 'move_out' ? Number(form.depositDeductionAmount || 0) : 0,
+              p_deposit_deduction_notes: form.type === 'move_out' ? (form.depositDeductionNotes || null) : null
+            });
+            if (error) throw error;
+            savedInspection = Array.isArray(data) ? data[0] : data;
+            if (!savedInspection?.id) throw new Error('Inspection record was saved without a usable response.');
+            form.id = savedInspection?.id || form.id;
 
-            let savedInspection;
-            if (form.id) {
-              const { data, error } = await supabaseClient
-                .from('property_inspections')
-                .update(payload)
-                .eq('id', form.id)
-                .select('*')
-                .single();
-              if (error) throw error;
-              savedInspection = data;
-            } else {
-              const { data, error } = await supabaseClient
-                .from('property_inspections')
-                .insert(payload)
-                .select('*')
-                .single();
-              if (error) throw error;
-              savedInspection = data;
-            }
-
+            savePhase = 'evidence';
             await this.uploadInspectionFile(savedInspection);
             this.propertyUnit.detailMode = '';
             this.propertyUnit.inspectionForm = this.defaultInspectionForm();
             await this.loadUnitDetail(this.propertyUnit.selectedUnit);
-            this.successMessage = form.id ? 'Inspection updated.' : 'Inspection recorded.';
+            this.successMessage = wasEditing ? 'Inspection updated.' : 'Inspection recorded.';
           } catch (error) {
-            this.propertyUnit.error = this.cleanSupabaseError(error?.message || 'Inspection could not be saved.');
+            console.error(`[Mushavo inspections] ${savePhase} save failed`, error);
+            if (savePhase === 'evidence' && savedInspection?.id) {
+              await this.loadUnitDetail(this.propertyUnit.selectedUnit);
+              this.propertyUnit.error = `Inspection saved, but evidence upload failed: ${this.inspectionDatabaseError(error, 'Please retry the evidence upload.')}`;
+            } else {
+              this.propertyUnit.error = this.inspectionDatabaseError(error, 'Inspection record could not be saved.');
+            }
           } finally {
             this.propertyUnit.saving = false;
           }
@@ -13273,19 +13279,15 @@
           this.propertyUnit.saving = true;
           this.propertyUnit.error = '';
           try {
-            const { error } = await supabaseClient
-              .from('property_inspections')
-              .update({
-                status: 'locked',
-                locked_at: new Date().toISOString(),
-                locked_by: this.profile?.id || null
-              })
-              .eq('id', inspection.id);
+            const { error } = await supabaseClient.rpc('lock_property_inspection', {
+              p_inspection_id: inspection.id
+            });
             if (error) throw error;
             await this.loadUnitDetail(this.propertyUnit.selectedUnit);
             this.successMessage = 'Inspection record locked.';
           } catch (error) {
-            this.propertyUnit.error = this.cleanSupabaseError(error?.message || 'Inspection could not be locked.');
+            console.error('[Mushavo inspections] lock failed', error);
+            this.propertyUnit.error = this.inspectionDatabaseError(error, 'Inspection could not be locked.');
           } finally {
             this.propertyUnit.saving = false;
           }
@@ -13293,6 +13295,10 @@
 
         async signTenantInspection(inspection) {
           if (!inspection) return;
+          if (inspection.status !== 'completed' || inspection.tenant_signed_at) {
+            this.tenant.error = 'Only an unsigned completed inspection can be signed.';
+            return;
+          }
           const signatureName = String(this.tenant.inspectionSignatureName || this.tenant.tenantRow?.full_name || this.profile?.full_name || '').trim();
           if (!signatureName) {
             this.tenant.error = 'Type your full name before signing the inspection.';
@@ -13310,7 +13316,8 @@
             await this.loadTenantData();
             this.successMessage = 'Inspection signed.';
           } catch (error) {
-            this.tenant.error = this.cleanSupabaseError(error?.message || 'Inspection could not be signed.');
+            console.error('[Mushavo inspections] tenant signature failed', error);
+            this.tenant.error = this.inspectionDatabaseError(error, 'Inspection could not be signed.');
           } finally {
             this.tenant.loading = false;
           }
@@ -16916,7 +16923,6 @@
             return;
           }
 
-          const inspectionSelect = 'id, landlord_id, property_id, unit_id, lease_id, tenant_id, maintenance_request_id, inspection_type, status, scheduled_for, inspected_at, inspector_profile_id, tenant_signature_name, tenant_signed_at, meter_readings, room_conditions, summary_notes, deposit_deduction_amount, deposit_deduction_notes, compared_to_inspection_id, locked_at, locked_by, created_by, updated_by, created_at, updated_at';
           const [chargesResult, paymentsResult, submissionsResult, maintenanceResult, inspectionsResult] = await Promise.all([
             supabaseClient
               .from('lease_charges')
@@ -16939,14 +16945,17 @@
               .in('lease_id', leaseIds)
               .is('archived_at', null)
               .order('created_at', { ascending: false }),
-            supabaseClient
-              .from('property_inspections')
-              .select(inspectionSelect)
-              .in('tenant_id', tenantIds)
-              .order('created_at', { ascending: false })
+            supabaseClient.rpc('get_my_property_inspections')
           ]);
 
-          const firstError = chargesResult.error || paymentsResult.error || submissionsResult.error || maintenanceResult.error || inspectionsResult.error;
+          if (inspectionsResult.error) {
+            console.error('[Mushavo inspections] tenant inspection load failed', inspectionsResult.error);
+            this.tenant.error = this.inspectionDatabaseError(inspectionsResult.error, 'Tenant inspection records could not be loaded.');
+            this.finishDataLoad('tenant', this.tenant);
+            return;
+          }
+
+          const firstError = chargesResult.error || paymentsResult.error || submissionsResult.error || maintenanceResult.error;
           if (firstError) {
             this.tenant.error = firstError.message;
             this.finishDataLoad('tenant', this.tenant);
@@ -16963,7 +16972,8 @@
             ? await supabaseClient.from('inspection_files').select('id, inspection_id, landlord_id, property_id, unit_id, lease_id, tenant_id, file_kind, room_name, caption, object_path, mime_type, file_size, uploaded_by, created_at').in('inspection_id', inspectionIds).order('created_at', { ascending: false })
             : { data: [], error: null };
           if (filesResult.error) {
-            this.tenant.error = filesResult.error.message;
+            console.error('[Mushavo inspections] tenant evidence load failed', filesResult.error);
+            this.tenant.error = this.inspectionDatabaseError(filesResult.error, 'Inspection evidence could not be loaded.');
             this.finishDataLoad('tenant', this.tenant);
             return;
           }
