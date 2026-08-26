@@ -13170,7 +13170,7 @@
           if (file.size > MAX_INSPECTION_FILE_SIZE) {
             throw new Error('Inspection file is too large. Upload a file under 50 MB.');
           }
-          const objectPath = `${savedInspection.id}/${this.generateSecureToken().slice(0, 16)}-${this.sanitizeInspectionFileName(file.name)}`;
+          const objectPath = `${savedInspection.landlord_id}/${savedInspection.id}/${this.generateSecureToken().slice(0, 16)}-${this.sanitizeInspectionFileName(file.name)}`;
           const { error: uploadError } = await supabaseClient.storage
             .from(INSPECTION_FILE_BUCKET)
             .upload(objectPath, file, {
