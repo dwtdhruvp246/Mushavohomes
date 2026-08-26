@@ -11787,6 +11787,14 @@
         inspectionDatabaseError(error, fallback = 'Inspection action could not be completed.') {
           const message = String(error?.message || error || '').trim();
           const lower = message.toLowerCase();
+          const code = String(error?.code || '').toUpperCase();
+          if (
+            code === 'PGRST202'
+            || lower.includes('could not find the function public.save_property_inspection')
+            || lower.includes('save_property_inspection') && lower.includes('schema cache')
+          ) {
+            return 'Inspection database setup is incomplete. Run the latest existing_database_patch.sql in the Supabase SQL Editor, then refresh this page.';
+          }
           const safeInspectionMessages = [
             'active lease and linked tenant',
             'permission to manage inspection',
