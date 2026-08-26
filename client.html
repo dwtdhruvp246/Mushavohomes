@@ -3143,7 +3143,7 @@
                       </div>
                     </div>
 
-                    <template x-if="propertyUnit.error && !propertyUnit.selectedPropertyId">
+                    <template x-if="propertyUnit.error">
                       <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" x-text="propertyUnit.error"></div>
                     </template>
 
@@ -3396,7 +3396,7 @@
                             <select class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model="propertyUnit.inspectionForm.status" required>
                               <option value="draft">Draft</option>
                               <option value="completed">Completed</option>
-
+                              <option value="locked">Locked</option>
                             </select>
                           </label>
                           <label class="block">
@@ -3465,10 +3465,10 @@
                         </div>
 
                         <div class="grid gap-3 lg:grid-cols-[1fr_0.8fr_1fr_1.2fr]">
-                          <div class="block">
-                            <span class="mb-2 block text-sm font-medium text-slate-700">Tenant signature</span>
-                            <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">The tenant signs this inspection from their own tenant portal after the inspection is saved.</div>
-                          </div>
+                          <label class="block">
+                            <span class="mb-2 block text-sm font-medium text-slate-700">Tenant signature name</span>
+                            <input class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" type="text" x-model.trim="propertyUnit.inspectionForm.tenantSignatureName">
+                          </label>
                           <label class="block">
                             <span class="mb-2 block text-sm font-medium text-slate-700">Evidence type</span>
                             <select class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model="propertyUnit.inspectionForm.evidenceKind">
@@ -11787,11 +11787,6 @@
           return fallback;
         },
 
-        cleanSupabaseError(error, fallback = 'Something went wrong. Please try again.') {
-          const message = String(error?.message || error || '').trim();
-          return this.friendlyDatabaseError(error, message || fallback);
-        },
-
         statusBadgeClass(status) {
           const classes = {
             active: 'bg-emerald-100 text-emerald-700',
@@ -12940,9 +12935,7 @@
 
         canManageInspections() {
           if (!this.canViewUnits()) return false;
-          const role = this.profile?.role;
-          if (role === 'landlord' || role === 'management_leader') return true;
-          if (!['staff', 'management_staff'].includes(role)) return false;
+          if (['landlord', 'management_leader'].includes(this.profile?.role)) return true;
           return Boolean(
             this.permissions.can_manage_maintenance
             || this.permissions.can_create_maintenance
@@ -13177,7 +13170,7 @@
           if (file.size > MAX_INSPECTION_FILE_SIZE) {
             throw new Error('Inspection file is too large. Upload a file under 50 MB.');
           }
-          const objectPath = `${savedInspection.landlord_id}/${savedInspection.id}/${this.generateSecureToken().slice(0, 16)}-${this.sanitizeInspectionFileName(file.name)}`;
+          const objectPath = `${savedInspection.id}/${this.generateSecureToken().slice(0, 16)}-${this.sanitizeInspectionFileName(file.name)}`;
           const { error: uploadError } = await supabaseClient.storage
             .from(INSPECTION_FILE_BUCKET)
             .upload(objectPath, file, {
@@ -13217,47 +13210,59 @@
             this.propertyUnit.error = 'Add at least one room condition before saving an inspection.';
             return;
           }
-
           this.propertyUnit.saving = true;
           this.propertyUnit.error = '';
-          let saveStage = 'inspection record';
-
           try {
             const lease = this.currentInspectionLease() || this.propertyUnit.currentLease || {};
-            const safeStatus = form.status === 'draft' ? 'draft' : 'completed';
-            const rpcPayload = {
-              p_inspection_id: form.id || null,
-              p_unit_id: this.propertyUnit.selectedUnit.id,
-              p_lease_id: lease.id || null,
-              p_inspection_type: form.type,
-              p_status: safeStatus,
-              p_scheduled_for: this.datetimeInputToIso(form.scheduledFor),
-              p_inspected_at: this.datetimeInputToIso(form.inspectedAt) || new Date().toISOString(),
-              p_compared_to_inspection_id: form.comparedToInspectionId || null,
-              p_meter_readings: this.parseInspectionMeterReadings(form.meterReadings),
-              p_room_conditions: roomConditions,
-              p_summary_notes: form.summaryNotes || null,
-              p_deposit_deduction_amount: form.type === 'move_out' ? Number(form.depositDeductionAmount || 0) : 0,
-              p_deposit_deduction_notes: form.type === 'move_out' ? (form.depositDeductionNotes || null) : null
+            const payload = {
+              landlord_id: this.currentLandlordId(),
+              property_id: this.propertyUnit.selectedUnit.property_id,
+              unit_id: this.propertyUnit.selectedUnit.id,
+              lease_id: lease.id || null,
+              tenant_id: lease.tenant_id || null,
+              inspection_type: form.type,
+              status: form.status,
+              scheduled_for: this.datetimeInputToIso(form.scheduledFor),
+              inspected_at: this.datetimeInputToIso(form.inspectedAt) || new Date().toISOString(),
+              compared_to_inspection_id: form.comparedToInspectionId || null,
+              meter_readings: this.parseInspectionMeterReadings(form.meterReadings),
+              room_conditions: roomConditions,
+              summary_notes: form.summaryNotes || null,
+              deposit_deduction_amount: form.type === 'move_out' ? Number(form.depositDeductionAmount || 0) : 0,
+              deposit_deduction_notes: form.type === 'move_out' ? (form.depositDeductionNotes || null) : null,
+              tenant_signature_name: form.tenantSignatureName || null,
+              tenant_signed_at: form.tenantSignatureName ? new Date().toISOString() : null,
+              locked_at: form.status === 'locked' ? new Date().toISOString() : null,
+              created_by: this.profile?.id || null
             };
 
-            const { data, error } = await supabaseClient.rpc('save_property_inspection', rpcPayload);
-            if (error) throw error;
-            const savedInspection = Array.isArray(data) ? data[0] : data;
-            if (!savedInspection?.id) throw new Error('Inspection was saved but the server did not return the inspection record.');
+            let savedInspection;
+            if (form.id) {
+              const { data, error } = await supabaseClient
+                .from('property_inspections')
+                .update(payload)
+                .eq('id', form.id)
+                .select('*')
+                .single();
+              if (error) throw error;
+              savedInspection = data;
+            } else {
+              const { data, error } = await supabaseClient
+                .from('property_inspections')
+                .insert(payload)
+                .select('*')
+                .single();
+              if (error) throw error;
+              savedInspection = data;
+            }
 
-            saveStage = 'inspection evidence';
             await this.uploadInspectionFile(savedInspection);
-
             this.propertyUnit.detailMode = '';
             this.propertyUnit.inspectionForm = this.defaultInspectionForm();
             await this.loadUnitDetail(this.propertyUnit.selectedUnit);
             this.successMessage = form.id ? 'Inspection updated.' : 'Inspection recorded.';
           } catch (error) {
-            const message = this.cleanSupabaseError(error, 'Inspection could not be saved.');
-            this.propertyUnit.error = saveStage === 'inspection evidence'
-              ? `The inspection record was saved, but the evidence upload failed: ${message}`
-              : `The inspection could not be saved: ${message}`;
+            this.propertyUnit.error = this.cleanSupabaseError(error?.message || 'Inspection could not be saved.');
           } finally {
             this.propertyUnit.saving = false;
           }
