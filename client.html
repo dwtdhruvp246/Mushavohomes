@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mushavo</title>
+  <title>Mushavo Homes</title>
   <meta name="description" content="Your property, handled simply.">
   <link rel="icon" type="image/png" href="mushavo-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -346,8 +346,8 @@
     <template x-if="booting">
       <div class="flex min-h-screen items-center justify-center bg-slate-50 px-6">
         <div class="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 text-center shadow-soft">
-          <img class="brand-logo mx-auto mb-4 h-72 w-auto" src="mushavo-logo.png" alt="Mushavo logo">
-          <p class="text-sm font-medium text-slate-600">Loading Mushavo...</p>
+          <img class="brand-logo mx-auto mb-4 h-72 w-auto" src="mushavo-logo.png" alt="Mushavo Homes logo">
+          <p class="text-sm font-medium text-slate-600">Loading Mushavo Homes...</p>
         </div>
       </div>
     </template>
@@ -356,7 +356,7 @@
       <main class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
         <section class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-soft">
           <div class="mb-8">
-            <img class="brand-logo mx-auto mb-5 h-48 w-auto" src="mushavo-logo.png" alt="Mushavo logo">
+            <img class="brand-logo mx-auto mb-5 h-48 w-auto" src="mushavo-logo.png" alt="Mushavo Homes logo">
             <h1 class="text-2xl font-bold tracking-normal text-slate-900" x-text="authTitle()"></h1>
             <p class="mt-2 text-sm leading-6 text-slate-500" x-text="authDescription()"></p>
           </div>
@@ -472,8 +472,8 @@
       <main class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
         <section id="invite-flow-shell" class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-soft">
           <div class="mb-8">
-            <img class="brand-logo mx-auto mb-5 h-48 w-auto" src="mushavo-logo.png" alt="Mushavo logo">
-            <h1 class="text-2xl font-bold tracking-normal text-slate-900">Welcome to Mushavo</h1>
+            <img class="brand-logo mx-auto mb-5 h-48 w-auto" src="mushavo-logo.png" alt="Mushavo Homes logo">
+            <h1 class="text-2xl font-bold tracking-normal text-slate-900">Welcome to Mushavo Homes</h1>
             <p class="mt-2 text-sm leading-6 text-slate-500">Set your password to activate your invited account.</p>
           </div>
 
@@ -578,7 +578,7 @@
         <header class="border-b border-emerald-100 bg-white">
           <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8 xl:max-w-[calc(100vw-4rem)] 2xl:max-w-[1800px]">
             <div class="flex min-w-0 items-center gap-3">
-              <img class="brand-logo h-24 w-auto max-w-[150px]" src="mushavo-logo.png" alt="Mushavo logo">
+              <img class="brand-logo h-24 w-auto max-w-[150px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
               <div class="min-w-0">
                 <span class="block truncate text-base font-bold text-slate-900" x-text="profile?.role === 'admin_staff' ? (profile.full_name || 'Admin Staff') : 'Admin'"></span>
                 <span class="block truncate text-xs font-semibold text-emerald-700" x-show="profile?.role === 'admin_staff'" x-text="adminCountryNames(profile?.country_ids, profile?.country_id)"></span>
@@ -601,7 +601,7 @@
             <aside class="relative flex h-full w-[min(19rem,88vw)] flex-col border-r border-white/70 bg-white/95 shadow-soft backdrop-blur-xl">
               <div class="flex h-16 items-center justify-between border-b border-slate-200 px-5">
                 <div class="flex min-w-0 items-center gap-3">
-                  <img class="brand-logo h-20 w-auto max-w-[130px]" src="mushavo-logo.png" alt="Mushavo logo">
+                  <img class="brand-logo h-20 w-auto max-w-[130px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
                   <span class="truncate text-sm font-bold text-slate-900" x-text="profile?.role === 'admin_staff' ? (profile.full_name || 'Admin Staff') : 'Admin'"></span>
                 </div>
                 <button class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" type="button" @click="sidebarOpen = false" aria-label="Close navigation">
@@ -2012,7 +2012,7 @@
           <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 class="text-2xl font-bold text-slate-900">Admin Staff</h1>
-              <p class="mt-1 text-sm text-slate-600">Add staff to help manage Mushavo accounts, then assign each staff member to one country.</p>
+              <p class="mt-1 text-sm text-slate-600">Add staff to help manage Mushavo Homes accounts, then assign each staff member to one country.</p>
             </div>
             <div class="flex flex-wrap gap-2">
               <button class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600" type="button" @click="openAdminModal('admin-team-add')">Add Staff</button>
@@ -2802,7 +2802,7 @@
         <div class="flex min-h-screen min-w-0">
           <aside class="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
             <div class="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-              <img class="brand-logo h-24 w-auto max-w-[160px]" src="mushavo-logo.png" alt="Mushavo logo">
+              <img class="brand-logo h-24 w-auto max-w-[160px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
               <span class="max-w-[9rem] shrink truncate whitespace-nowrap text-[11px] font-bold uppercase leading-tight tracking-normal text-emerald-700 [overflow-wrap:normal]" x-text="accountRoleLabel()" :title="accountRoleLabel()"></span>
             </div>
             <nav id="landlord-staff-sidebar" class="flex-1 space-y-1 p-3">
@@ -2830,7 +2830,7 @@
               <aside class="relative flex h-full w-[min(18rem,86vw)] flex-col border-r border-slate-200 bg-white shadow-soft">
                 <div class="flex h-16 items-center justify-between border-b border-slate-200 px-5">
                   <div class="flex items-center gap-3">
-                    <img class="brand-logo h-24 w-auto max-w-[160px]" src="mushavo-logo.png" alt="Mushavo logo">
+                    <img class="brand-logo h-24 w-auto max-w-[160px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
                    <span class="max-w-[9rem] shrink truncate whitespace-nowrap text-[11px] font-bold uppercase leading-tight tracking-normal text-emerald-700 [overflow-wrap:normal]" x-text="accountRoleLabel()" :title="accountRoleLabel()"></span>
                   </div>
                   <button class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" type="button" @click="sidebarOpen = false" aria-label="Close navigation">
@@ -2871,7 +2871,7 @@
               <div class="flex w-full items-center justify-between gap-3">
                 <div class="flex min-w-0 flex-1 items-center gap-3">
                   <div class="flex min-w-0 items-center gap-3 lg:hidden">
-                    <img class="brand-logo h-24 w-auto max-w-[150px]" src="mushavo-logo.png" alt="Mushavo logo">
+                    <img class="brand-logo h-24 w-auto max-w-[150px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
                     <span class="max-w-[9rem] shrink truncate whitespace-nowrap text-sm font-bold uppercase leading-tight tracking-normal text-emerald-700 [overflow-wrap:normal]" x-text="accountRoleLabel()" :title="accountRoleLabel()"></span>
                   </div>
                   <div class="hidden min-w-0 flex-wrap items-center gap-x-4 gap-y-1 lg:flex">
@@ -3560,8 +3560,8 @@
                           </div>
                           <template x-if="propertyUnit.assignForm.tenantLookup">
                             <div class="mt-4 rounded-lg border border-emerald-200 bg-white p-4">
-                              <p class="text-sm font-semibold text-emerald-900" x-text="propertyUnit.assignForm.tenantLookup.account_found ? 'Tenant account found on Mushavo.' : 'No tenant account found.'"></p>
-                              <p class="mt-1 text-sm text-emerald-800" x-text="propertyUnit.assignForm.tenantLookup.account_found ? `${propertyUnit.assignForm.tenantLookup.full_name || 'Tenant'} - ${propertyUnit.assignForm.tenantLookup.email}. Send a request; they must accept before you can assign them.` : 'Create an invite link and send it to the tenant so they can create their Mushavo tenant account.'"></p>
+                              <p class="text-sm font-semibold text-emerald-900" x-text="propertyUnit.assignForm.tenantLookup.account_found ? 'Tenant account found on Mushavo Homes.' : 'No tenant account found.'"></p>
+                              <p class="mt-1 text-sm text-emerald-800" x-text="propertyUnit.assignForm.tenantLookup.account_found ? `${propertyUnit.assignForm.tenantLookup.full_name || 'Tenant'} - ${propertyUnit.assignForm.tenantLookup.email}. Send a request; they must accept before you can assign them.` : 'Create an invite link and send it to the tenant so they can create their Mushavo Homes tenant account.'"></p>
                               <div class="mt-3 flex flex-wrap gap-2">
                                 <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60" type="button" @click="createUnitTenantInvite" :disabled="propertyUnit.saving" x-text="propertyUnit.assignForm.tenantLookup.account_found ? 'Send Request' : 'Create Invite Link'"></button>
                                 <button x-show="propertyUnit.assignForm.tenantInviteLink" class="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50" type="button" @click="copyText(propertyUnit.assignForm.tenantInviteLink)">Copy Link</button>
@@ -3619,7 +3619,7 @@
                               <option :value="option.key" x-text="option.label"></option>
                             </template>
                           </select>
-                          <span class="mt-1 block text-xs text-slate-500" x-show="propertyUnit.paymentForm.rentPeriodKey === 'historical'">Use this for old rent payments made before the account started using Mushavo.</span>
+                          <span class="mt-1 block text-xs text-slate-500" x-show="propertyUnit.paymentForm.rentPeriodKey === 'historical'">Use this for old rent payments made before the account started using Mushavo Homes.</span>
                         </label>
                         <label class="block" x-show="propertyUnit.paymentForm.rentPeriodKey === 'historical'">
                           <span class="mb-2 block text-sm font-medium text-slate-700">Historical rent month</span>
@@ -3778,7 +3778,7 @@
                       </div>
                       <template x-if="tenantLease.lookup.result">
                         <div class="mt-4 rounded-lg border border-emerald-200 bg-white p-4">
-                          <p class="text-sm font-semibold text-emerald-900" x-text="tenantLease.lookup.result.account_found ? 'Tenant account found on Mushavo.' : 'No tenant account found.'"></p>
+                          <p class="text-sm font-semibold text-emerald-900" x-text="tenantLease.lookup.result.account_found ? 'Tenant account found on Mushavo Homes.' : 'No tenant account found.'"></p>
                           <p class="mt-1 text-sm text-emerald-800" x-text="tenantLease.lookup.result.account_found ? `${tenantLease.lookup.result.full_name || 'Tenant'} - ${tenantLease.lookup.result.email}` : 'Click Add New Tenant to enter their details and send a new invite link.'"></p>
                           <button x-show="tenantLease.lookup.result.account_found" class="mt-3 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60" type="button" @click="inviteFoundTenant" :disabled="tenantLease.saving">Send Request</button>
                           <button x-show="!tenantLease.lookup.result.account_found" class="mt-3 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60" type="button" @click="prepareNewTenantInvite" :disabled="tenantLease.saving">Add New Tenant</button>
@@ -4519,7 +4519,7 @@
                               <option :value="option.key" x-text="option.label"></option>
                             </template>
                           </select>
-                          <span class="mt-1 block text-xs text-slate-500" x-show="payments.manualForm.rentPeriodKey === 'historical'">Use this for old rent payments made before the account started using Mushavo.</span>
+                          <span class="mt-1 block text-xs text-slate-500" x-show="payments.manualForm.rentPeriodKey === 'historical'">Use this for old rent payments made before the account started using Mushavo Homes.</span>
                         </label>
                         <label class="block sm:col-span-2" x-show="payments.manualForm.rentPeriodKey === 'historical'">
                           <span class="mb-2 block text-sm font-medium text-slate-700">Historical rent month</span>
@@ -5321,7 +5321,7 @@
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div class="max-w-2xl">
                         <h1 class="text-xl font-bold text-slate-900">Landlords</h1>
-                        <p class="mt-1 text-sm text-slate-500">Search a landlord by email. If they are already on Mushavo, request access. If not, invite them to create a free landlord account.</p>
+                        <p class="mt-1 text-sm text-slate-500">Search a landlord by email. If they are already on Mushavo Homes, request access. If not, invite them to create a free landlord account.</p>
                       </div>
                       <button class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="refreshCurrentPage">Refresh</button>
                     </div>
@@ -5331,8 +5331,8 @@
                     </form>
                     <template x-if="staffContext.searchResult">
                       <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                        <p class="text-sm font-semibold text-emerald-900" x-text="staffContext.searchResult.account_found ? 'This landlord is already using Mushavo.' : 'No landlord account found.'"></p>
-                        <p class="mt-1 text-sm text-emerald-800" x-text="staffContext.searchResult.account_found ? `${staffContext.searchResult.full_name || 'Landlord'} - ${staffContext.searchResult.email}` : 'Invite this landlord to join Mushavo on the free landlord plan.'"></p>
+                        <p class="text-sm font-semibold text-emerald-900" x-text="staffContext.searchResult.account_found ? 'This landlord is already using Mushavo Homes.' : 'No landlord account found.'"></p>
+                        <p class="mt-1 text-sm text-emerald-800" x-text="staffContext.searchResult.account_found ? `${staffContext.searchResult.full_name || 'Landlord'} - ${staffContext.searchResult.email}` : 'Invite this landlord to join Mushavo Homes on the free landlord plan.'"></p>
                         <div class="mt-3 flex flex-wrap gap-2">
                           <button x-show="staffContext.searchResult.account_found" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700" type="button" @click="requestStaffLandlordAccessByEmail">Request Access</button>
                           <button x-show="!staffContext.searchResult.account_found" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700" type="button" @click="inviteStaffLandlordByEmail">Invite Landlord</button>
@@ -5386,7 +5386,7 @@
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div>
                         <h1 class="text-xl font-bold text-slate-900">Connected Landlords</h1>
-                        <p class="mt-1 text-sm text-slate-500">Search a landlord by email. If they are already on Mushavo, request access. If not, invite them to create a free landlord account.</p>
+                        <p class="mt-1 text-sm text-slate-500">Search a landlord by email. If they are already on Mushavo Homes, request access. If not, invite them to create a free landlord account.</p>
                         <form class="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]" @submit.prevent="searchManagementLandlordByEmail">
                           <span class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700" x-text="managementContext.company?.company_name || 'PMC'"></span>
                           <input class="min-w-0 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm outline-none focus:border-emerald-500" type="email" placeholder="Landlord email" x-model.trim="managementContext.searchEmail" required>
@@ -5398,8 +5398,8 @@
 
                     <template x-if="managementContext.searchResult">
                       <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                        <p class="text-sm font-semibold text-emerald-900" x-text="managementContext.searchResult.account_found ? 'This landlord is already using Mushavo.' : 'No landlord account found.'"></p>
-                        <p class="mt-1 text-sm text-emerald-800" x-text="managementContext.searchResult.account_found ? `${managementContext.searchResult.full_name || 'Landlord'} - ${managementContext.searchResult.email}` : 'Invite this landlord to join Mushavo on the free landlord plan.'"></p>
+                        <p class="text-sm font-semibold text-emerald-900" x-text="managementContext.searchResult.account_found ? 'This landlord is already using Mushavo Homes.' : 'No landlord account found.'"></p>
+                        <p class="mt-1 text-sm text-emerald-800" x-text="managementContext.searchResult.account_found ? `${managementContext.searchResult.full_name || 'Landlord'} - ${managementContext.searchResult.email}` : 'Invite this landlord to join Mushavo Homes on the free landlord plan.'"></p>
                         <div class="mt-3 flex flex-wrap gap-2">
                           <button x-show="managementContext.searchResult.account_found" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700" type="button" @click="requestManagementLandlordAccessByEmail">Request Access</button>
                           <button x-show="!managementContext.searchResult.account_found" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700" type="button" @click="inviteManagementLandlordByEmail">Invite Landlord</button>
@@ -5774,7 +5774,7 @@
                     <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <h2 class="text-lg font-bold text-slate-900">Accepted Landlords</h2>
-                        <p class="mt-1 text-sm text-slate-500">Landlords you have accepted on Mushavo. You can drop them only after your unit is marked vacant.</p>
+                        <p class="mt-1 text-sm text-slate-500">Landlords you have accepted on Mushavo Homes. You can drop them only after your unit is marked vacant.</p>
                       </div>
                       <button class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="loadTenantSettingsLandlords">Refresh</button>
                     </div>
@@ -5852,7 +5852,7 @@
                     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <h1 class="text-xl font-bold text-slate-900">My Account</h1>
-                        <p class="mt-1 text-sm text-slate-500" x-text="profile?.role === 'management_leader' ? 'Your Property Management Company (PMC) profile and Mushavo subscription details.' : (profile?.staff_type === 'freelancer' ? 'Your Individual Portfolio Manager (IPM) profile, landlord access, and Mushavo subscription details.' : 'Your landlord profile and Mushavo subscription details.')"></p>
+                        <p class="mt-1 text-sm text-slate-500" x-text="profile?.role === 'management_leader' ? 'Your Property Management Company (PMC) profile and Mushavo Homes subscription details.' : (profile?.staff_type === 'freelancer' ? 'Your Individual Portfolio Manager (IPM) profile, landlord access, and Mushavo Homes subscription details.' : 'Your landlord profile and Mushavo Homes subscription details.')"></p>
                       </div>
                       <button class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="refreshCurrentPage">Refresh</button>
                     </div>
@@ -5920,7 +5920,7 @@
         <header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
           <div class="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3">
             <div class="flex min-w-0 items-center gap-3">
-              <img class="brand-logo h-24 w-auto max-w-[145px]" src="mushavo-logo.png" alt="Mushavo logo">
+              <img class="brand-logo h-24 w-auto max-w-[145px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
               <div>
                 <p class="text-sm font-semibold text-slate-900">Tenant</p>
                 <p class="hidden text-xs font-medium text-slate-500 sm:block" x-text="pageTitle"></p>
@@ -5970,7 +5970,7 @@
             <aside class="relative flex h-full w-[min(18rem,86vw)] flex-col border-r border-white/70 bg-white/95 shadow-soft backdrop-blur-xl">
               <div class="flex h-16 items-center justify-between border-b border-slate-200 px-5">
                 <div class="flex min-w-0 items-center gap-3">
-                  <img class="brand-logo h-20 w-auto max-w-[130px]" src="mushavo-logo.png" alt="Mushavo logo">
+                  <img class="brand-logo h-20 w-auto max-w-[130px]" src="mushavo-logo.png" alt="Mushavo Homes logo">
                   <span class="truncate text-sm font-bold text-slate-900">Tenant</span>
                 </div>
                 <button class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" type="button" @click="sidebarOpen = false" aria-label="Close navigation">
@@ -6444,7 +6444,7 @@
       const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
       const MAX_PAYMENT_PROOF_UPLOAD_SIZE = 10 * 1024 * 1024;
       const MAX_INSPECTION_FILE_SIZE = 50 * 1024 * 1024;
-    const COMPANY_NAME = 'Mushavo';
+    const COMPANY_NAME = 'Mushavo Homes';
     const COMPANY_TAGLINE = 'Your property, handled simply.';
     const SUPPORT_EMAIL = 'dhruvp246@gmail.com';
     const AI_LEASE_ENDPOINT = 'https://mushavo-ai-lease.alsodhruvp246.workers.dev';
@@ -6530,7 +6530,7 @@
         pageTitle: 'Dashboard',
         accessPaused: false,
         suspendedTitle: 'Subscription Expired',
-        suspendedMessage: 'Your Mushavo subscription has expired, and your account access is currently paused. Your data is still safely stored.\n\nPlease contact support to renew your subscription and restore access.',
+        suspendedMessage: 'Your Mushavo Homes subscription has expired, and your account access is currently paused. Your data is still safely stored.\n\nPlease contact support to renew your subscription and restore access.',
         user: null,
         profile: null,
         subscription: null,
@@ -7435,7 +7435,7 @@
               }
             });
           } catch (error) {
-            this.authError = error.message || 'Mushavo could not finish loading. Please refresh once or sign in again.';
+            this.authError = error.message || 'Mushavo Homes could not finish loading. Please refresh once or sign in again.';
             this.currentShell = 'login';
             this.booting = false;
           }
@@ -7462,7 +7462,7 @@
 
         authTitle() {
           const titles = {
-            login: 'Sign in to Mushavo',
+            login: 'Sign in to Mushavo Homes',
             'staff-signup': 'Create staff account'
           };
           return titles[this.authMode] || titles.login;
@@ -7598,7 +7598,7 @@
                 }
               } else if (existingProfile.role !== 'tenant') {
                 await supabaseClient.auth.signOut();
-                this.invite.submitError = 'This email is already used by a non-tenant Mushavo account. Use a different tenant email.';
+                this.invite.submitError = 'This email is already used by a non-tenant Mushavo Homes account. Use a different tenant email.';
                 this.invite.submitting = false;
                 return;
               }
@@ -7634,7 +7634,7 @@
             this.invite.submitError = signUpError.message.includes('Signups not allowed')
               ? 'Supabase Auth signups are disabled for this project. Enable Email signups in Supabase Auth settings, then retry this invite link.'
               : alreadyRegistered && tokenRow.role === 'tenant'
-                ? 'This tenant email already has a Mushavo login. Enter the existing password to accept this invite, or reset the password first.'
+                ? 'This tenant email already has a Mushavo Homes login. Enter the existing password to accept this invite, or reset the password first.'
                 : signUpError.message;
             this.invite.submitting = false;
             return;
@@ -12756,11 +12756,11 @@
         },
 
         subscriptionExpiredMessage() {
-          return 'Your Mushavo subscription has expired, and your account access is currently paused. Your data is still safely stored.\n\nPlease contact support to renew your subscription and restore access.';
+          return 'Your Mushavo Homes subscription has expired, and your account access is currently paused. Your data is still safely stored.\n\nPlease contact support to renew your subscription and restore access.';
         },
 
           accountSuspendedMessage() {
-            return 'Your Mushavo account has been suspended by an administrator.\n\nYour data is still safely stored. Please contact support if you believe this was a mistake or to restore access.';
+            return 'Your Mushavo Homes account has been suspended by an administrator.\n\nYour data is still safely stored. Please contact support if you believe this was a mistake or to restore access.';
           },
 
           suspendedAdminStaffMessage() {
@@ -13221,7 +13221,7 @@
             const { error: cleanupError } = await supabaseClient.storage
               .from(INSPECTION_FILE_BUCKET)
               .remove([objectPath]);
-            if (cleanupError) console.error('[Mushavo inspections] orphan evidence cleanup failed', cleanupError);
+            if (cleanupError) console.error('[Mushavo Homes inspections] orphan evidence cleanup failed', cleanupError);
             throw fileError;
           }
         },
@@ -13270,7 +13270,7 @@
             await this.loadUnitDetail(this.propertyUnit.selectedUnit);
             this.successMessage = wasEditing ? 'Inspection updated.' : 'Inspection recorded.';
           } catch (error) {
-            console.error(`[Mushavo inspections] ${savePhase} save failed`, error);
+            console.error(`[Mushavo Homes inspections] ${savePhase} save failed`, error);
             if (savePhase === 'evidence' && savedInspection?.id) {
               await this.loadUnitDetail(this.propertyUnit.selectedUnit);
               this.propertyUnit.error = `Inspection saved, but evidence upload failed: ${this.inspectionDatabaseError(error, 'Please retry the evidence upload.')}`;
@@ -13294,7 +13294,7 @@
             await this.loadUnitDetail(this.propertyUnit.selectedUnit);
             this.successMessage = 'Inspection record locked.';
           } catch (error) {
-            console.error('[Mushavo inspections] lock failed', error);
+            console.error('[Mushavo Homes inspections] lock failed', error);
             this.propertyUnit.error = this.inspectionDatabaseError(error, 'Inspection could not be locked.');
           } finally {
             this.propertyUnit.saving = false;
@@ -13324,7 +13324,7 @@
             await this.loadTenantData();
             this.successMessage = 'Inspection signed.';
           } catch (error) {
-            console.error('[Mushavo inspections] tenant signature failed', error);
+            console.error('[Mushavo Homes inspections] tenant signature failed', error);
             this.tenant.error = this.inspectionDatabaseError(error, 'Inspection could not be signed.');
           } finally {
             this.tenant.loading = false;
@@ -15361,7 +15361,7 @@
 
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(20);
-            doc.text('Mushavo', 20, 22);
+            doc.text('Mushavo Homes', 20, 22);
             doc.setFontSize(13);
             doc.text('Payment Receipt', 20, 32);
 
@@ -15433,7 +15433,7 @@
 
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(20);
-            doc.text('Mushavo', 20, 22);
+            doc.text('Mushavo Homes', 20, 22);
             doc.setFontSize(13);
             doc.text('Platform Payment Receipt', 20, 32);
 
@@ -16957,7 +16957,7 @@
           ]);
 
           if (inspectionsResult.error) {
-            console.error('[Mushavo inspections] tenant inspection load failed', inspectionsResult.error);
+            console.error('[Mushavo Homes inspections] tenant inspection load failed', inspectionsResult.error);
             this.tenant.error = this.inspectionDatabaseError(inspectionsResult.error, 'Tenant inspection records could not be loaded.');
             this.finishDataLoad('tenant', this.tenant);
             return;
@@ -16980,7 +16980,7 @@
             ? await supabaseClient.from('inspection_files').select('id, inspection_id, landlord_id, property_id, unit_id, lease_id, tenant_id, file_kind, room_name, caption, object_path, mime_type, file_size, uploaded_by, created_at').in('inspection_id', inspectionIds).order('created_at', { ascending: false })
             : { data: [], error: null };
           if (filesResult.error) {
-            console.error('[Mushavo inspections] tenant evidence load failed', filesResult.error);
+            console.error('[Mushavo Homes inspections] tenant evidence load failed', filesResult.error);
             this.tenant.error = this.inspectionDatabaseError(filesResult.error, 'Inspection evidence could not be loaded.');
             this.finishDataLoad('tenant', this.tenant);
             return;
@@ -19674,8 +19674,8 @@
           if (profileError || !profile) {
             await supabaseClient.auth.signOut();
             this.authError = profileError?.message
-              ? `Your login exists, but Mushavo could not load your profile: ${profileError.message}`
-              : 'Your account does not exist or has been removed. Please contact your landlord or Mushavo administrator.';
+              ? `Your login exists, but Mushavo Homes could not load your profile: ${profileError.message}`
+              : 'Your account does not exist or has been removed. Please contact your landlord or Mushavo Homes administrator.';
             this.currentShell = 'login';
             this.booting = false;
             return;
@@ -19683,7 +19683,7 @@
 
           if (profile.archived_at) {
             await supabaseClient.auth.signOut();
-            this.authError = 'Your account has been archived. Please contact your landlord or Mushavo administrator.';
+            this.authError = 'Your account has been archived. Please contact your landlord or Mushavo Homes administrator.';
             this.currentShell = 'login';
             this.booting = false;
             return;
@@ -19705,7 +19705,7 @@
             }
             if (profile.role === 'admin_staff' && !this.normalizeCountryIds(profile.country_ids || (profile.country_id ? [profile.country_id] : [])).length) {
               await supabaseClient.auth.signOut();
-              this.authError = 'Your admin staff account does not have a country assigned yet. Please contact the Mushavo administrator.';
+              this.authError = 'Your admin staff account does not have a country assigned yet. Please contact the Mushavo Homes administrator.';
               this.currentShell = 'login';
               this.booting = false;
               return;
@@ -19790,7 +19790,7 @@
                 this.currentShell = 'suspended';
               } else {
                 await supabaseClient.auth.signOut();
-                this.authError = 'Your Property Management Company (PMC) account is not active. Please contact the Mushavo administrator.';
+                this.authError = 'Your Property Management Company (PMC) account is not active. Please contact the Mushavo Homes administrator.';
                 this.currentShell = 'login';
               }
               this.booting = false;
@@ -20748,7 +20748,7 @@
             'tenant-settings': 'Settings'
           };
 
-          return titles[page] || 'Mushavo';
+          return titles[page] || 'Mushavo Homes';
         },
 
         async logout() {
