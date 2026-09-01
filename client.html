@@ -4878,7 +4878,10 @@
                         <h1 class="text-xl font-bold text-slate-900">Leads</h1>
                         <p class="mt-1 text-sm text-slate-500">Publish available units, review enquiries, and manage viewing follow-ups.</p>
                       </div>
-                      <button class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="loadLeadsPage" :disabled="leads.loading">Refresh</button>
+                      <div class="flex flex-wrap items-center justify-end gap-2">
+                        <button x-show="canPublishListings()" class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600" type="button" @click="toggleListingForm" x-text="leads.listingFormOpen ? 'Close Form' : 'Publish Unit Listing'"></button>
+                        <button class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="loadLeadsPage" :disabled="leads.loading">Refresh</button>
+                      </div>
                     </div>
 
                     <template x-if="leads.error">
@@ -4889,7 +4892,7 @@
                     </template>
                   </section>
 
-                  <section x-show="canPublishListings()" class="rounded-xl border border-slate-200 bg-white p-5 shadow-soft">
+                  <section x-cloak x-show="canPublishListings() && leads.listingFormOpen" x-transition.opacity.duration.150ms class="rounded-xl border border-slate-200 bg-white p-5 shadow-soft">
                     <div class="mb-4">
                       <h2 class="text-base font-bold text-slate-900">Publish Unit Listing</h2>
                       <p class="mt-1 text-sm text-slate-500">Public listings hide the exact address and only show safe vacancy details.</p>
@@ -7221,6 +7224,7 @@
         leads: {
           loading: false,
           saving: false,
+          listingFormOpen: false,
           error: '',
           message: '',
           items: [],
@@ -20382,6 +20386,14 @@
           if (this.$refs.listingPhotoInput) this.$refs.listingPhotoInput.value = '';
         },
 
+        toggleListingForm() {
+          this.leads.listingFormOpen = !this.leads.listingFormOpen;
+          if (this.leads.listingFormOpen) {
+            this.leads.error = '';
+            this.leads.message = '';
+          }
+        },
+
         syncListingFormUnit() {
           const unit = (this.leads.units || []).find((item) => item.unit_id === this.leads.listingForm.unitId);
           if (!unit) {
@@ -20474,6 +20486,7 @@
 
             this.leads.message = `${form.status === 'published' ? 'Listing published.' : 'Listing saved.'}${removalWarning}`;
             this.resetListingForm();
+            this.leads.listingFormOpen = false;
             await this.loadLeadsPage();
           } catch (error) {
             if (!listingSaved && uploadedPaths.length) {
