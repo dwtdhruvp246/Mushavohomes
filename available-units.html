@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Available Units | Mushavo</title>
+  <title>Available Units | Mushavo Homes</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -19,7 +19,7 @@
   <header class="border-b border-white/60 bg-white/45 backdrop-blur-xl">
     <div class="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
       <a href="index.html" class="flex items-center gap-3">
-        <img class="h-20 w-auto sm:h-24" src="mushavo-logo.png" alt="Mushavo logo">
+        <img class="h-20 w-auto sm:h-24" src="mushavo-logo.png" alt="Mushavo Homes logo">
       </a>
       <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-700">
         <a class="rounded-xl px-4 py-2 hover:bg-white/70" href="about.html">About</a>
@@ -37,7 +37,7 @@
         <div>
           <p class="text-xs font-black uppercase tracking-[0.35em] text-emerald-700">Available Units</p>
           <h1 class="mt-4 max-w-3xl text-4xl font-black leading-tight text-slate-950 sm:text-5xl">Find homes and units ready for enquiry.</h1>
-          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Browse published Mushavo listings, request a viewing, and send an enquiry. Exact addresses are kept private until the owner or manager follows up.</p>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Browse published Mushavo Homes listings, request a viewing, and send an enquiry. Exact addresses are kept private until the owner or manager follows up.</p>
         </div>
         <form id="filters" class="grid gap-3 rounded-3xl border border-white/70 bg-white/60 p-4 shadow-xl shadow-emerald-950/5 backdrop-blur-xl sm:grid-cols-2">
           <label class="text-sm font-semibold text-slate-700">Country
@@ -61,7 +61,7 @@
             <select id="availabilityFilter" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100">
               <option value="">Any</option>
               <option value="available">Available now</option>
-              <option value="soon_available">Available soon</option>
+              <option value="available_soon">Available soon</option>
             </select>
           </label>
           <button class="h-12 rounded-xl bg-emerald-600 px-5 font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-700 sm:col-span-2" type="submit">Search Listings</button>
@@ -110,6 +110,7 @@
     const SUPABASE_URL = 'https://rmbvgtaadkvbsasbvdmb.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtYnZndGFhZGt2YnNhc2J2ZG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NTQ1NjIsImV4cCI6MjA5ODIzMDU2Mn0.kMhXDI85TVAsw_Mb-PO5iaSHipG3vLFmM7DF3TUnf00';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const LISTING_PHOTO_BUCKET = 'listing-photos';
     const state = { listings: [], selectedListing: null };
 
     const el = (id) => document.getElementById(id);
@@ -138,12 +139,20 @@
       select.value = previous;
     }
 
+    function listingPhotoUrls(listing) {
+      const storedPhotos = (Array.isArray(listing.photo_paths) ? listing.photo_paths : [])
+        .map((objectPath) => supabaseClient.storage.from(LISTING_PHOTO_BUCKET).getPublicUrl(objectPath).data?.publicUrl || '')
+        .filter(Boolean);
+      const legacyPhotos = (Array.isArray(listing.photo_urls) ? listing.photo_urls : []).filter(Boolean);
+      return [...new Set([...storedPhotos, ...legacyPhotos])];
+    }
+
     function listingCard(listing) {
-      const photo = Array.isArray(listing.photo_urls) && listing.photo_urls.length ? listing.photo_urls[0] : '';
-      const availability = listing.availability_status === 'soon_available' ? 'Available soon' : 'Available now';
+      const photo = listingPhotoUrls(listing)[0] || '';
+      const availability = listing.availability_status === 'available_soon' ? 'Available soon' : 'Available now';
       return `
         <article class="overflow-hidden rounded-3xl border border-white/70 bg-white/70 shadow-2xl shadow-emerald-950/10 backdrop-blur-xl">
-          ${photo ? `<img class="h-56 w-full object-cover" src="${photo}" alt="${text(listing.title, 'Available unit')}">` : `<div class="flex h-56 items-center justify-center bg-gradient-to-br from-emerald-100 to-cyan-100 text-sm font-bold text-emerald-700">Mushavo Listing</div>`}
+          ${photo ? `<img class="h-56 w-full object-cover" src="${photo}" alt="${text(listing.title, 'Available unit')}">` : `<div class="flex h-56 items-center justify-center bg-gradient-to-br from-emerald-100 to-cyan-100 text-sm font-bold text-emerald-700">Mushavo Homes Listing</div>`}
           <div class="p-5">
             <div class="flex flex-wrap items-center gap-2">
               <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">${availability}</span>
@@ -171,7 +180,7 @@
         p_min_rent: el('minRentFilter').value ? Number(el('minRentFilter').value) : null,
         p_max_rent: el('maxRentFilter').value ? Number(el('maxRentFilter').value) : null,
         p_bedrooms: el('bedroomsFilter').value ? Number(el('bedroomsFilter').value) : null,
-        p_availability_status: el('availabilityFilter').value || null
+        p_availability: el('availabilityFilter').value || null
       };
       const { data, error } = await supabaseClient.rpc('get_public_unit_listings', params);
       if (error) {
@@ -213,11 +222,11 @@
       const preferred = el('leadViewing').value ? new Date(el('leadViewing').value).toISOString() : null;
       const { error } = await supabaseClient.rpc('submit_listing_lead', {
         p_listing_id: state.selectedListing.id,
-        p_full_name: el('leadName').value.trim(),
+        p_name: el('leadName').value.trim(),
         p_email: el('leadEmail').value.trim(),
         p_phone: el('leadPhone').value.trim(),
         p_message: el('leadMessage').value.trim(),
-        p_requested_for: preferred
+        p_preferred_viewing: preferred
       });
       button.disabled = false;
       button.textContent = 'Submit Enquiry';
@@ -227,7 +236,7 @@
         return;
       }
       messageBox.className = 'mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700';
-      messageBox.textContent = 'Enquiry submitted. The Mushavo team will review it.';
+      messageBox.textContent = 'Enquiry submitted. The Mushavo Homes team will review it.';
       event.target.reset();
     }
 

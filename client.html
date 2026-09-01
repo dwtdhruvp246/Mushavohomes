@@ -4893,14 +4893,15 @@
                     <div class="mb-4">
                       <h2 class="text-base font-bold text-slate-900">Publish Unit Listing</h2>
                       <p class="mt-1 text-sm text-slate-500">Public listings hide the exact address and only show safe vacancy details.</p>
+                      <p class="mt-1 text-xs font-medium text-amber-700">All fields marked *, at least one photo, and both public display options are required before a listing can be published. Drafts may be saved while incomplete.</p>
                     </div>
                     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                       <label class="block xl:col-span-2">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Unit</span>
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Unit <span class="text-red-600">*</span></span>
                         <select class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model="leads.listingForm.unitId" @change="syncListingFormUnit" x-effect='$nextTick(() => { $el.value = leads.listingForm.unitId ?? "" })'>
                           <option value="">Select unit</option>
                           <template x-for="unit in leads.units" :key="unit.unit_id">
-                            <option :value="unit.unit_id" x-text="`${unit.property_name} / Unit ${unit.unit_number} - ${formatCurrency(unit.rent || 0)}`"></option>
+                            <option :value="unit.unit_id" x-text="`${unit.property_name} / Unit ${unit.unit_number} - ${formatCurrency(unit.monthly_rent || 0)}`"></option>
                           </template>
                         </select>
                       </label>
@@ -4919,33 +4920,67 @@
                           <option value="available_soon">Available soon</option>
                         </select>
                       </label>
+                      <div x-show="selectedListingUnit()" class="grid gap-3 rounded-lg border border-emerald-100 bg-emerald-50/60 p-3 md:col-span-2 xl:col-span-4 sm:grid-cols-3">
+                        <div><p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Saved rent</p><p class="mt-1 font-bold text-emerald-700" x-text="formatCurrency(selectedListingUnit()?.monthly_rent || 0)"></p></div>
+                        <div><p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bedrooms</p><p class="mt-1 font-bold text-slate-900" x-text="selectedListingUnit()?.bedrooms ?? '-'"></p></div>
+                        <div><p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bathrooms</p><p class="mt-1 font-bold text-slate-900" x-text="selectedListingUnit()?.bathrooms ?? '-'"></p></div>
+                        <p x-show="selectedListingUnit() && Number(selectedListingUnit()?.monthly_rent || 0) <= 0" class="text-xs font-semibold text-red-700 sm:col-span-3">Add a rent amount to this unit before publishing it.</p>
+                      </div>
                       <label class="block md:col-span-2">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Title</span>
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Title <span class="text-red-600">*</span></span>
                         <input class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model.trim="leads.listingForm.title" placeholder="Example: Neat 2-bedroom unit in Avondale">
                       </label>
                       <label class="block">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Public area</span>
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Public area <span class="text-red-600">*</span></span>
                         <input class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model.trim="leads.listingForm.publicArea" placeholder="Area only, not exact address">
                       </label>
                       <label class="block">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Available from</span>
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Available from <span class="text-red-600">*</span></span>
                         <input class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" type="date" x-model="leads.listingForm.availableFrom">
                       </label>
                       <label class="block md:col-span-2 xl:col-span-4">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Summary</span>
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Summary <span class="text-red-600">*</span></span>
                         <textarea class="min-h-24 w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model.trim="leads.listingForm.summary" placeholder="Short public description"></textarea>
                       </label>
                       <label class="block md:col-span-2 xl:col-span-4">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Photo URLs</span>
-                        <input class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" x-model.trim="leads.listingForm.photoUrls" placeholder="Optional, comma separated">
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Property photos <span class="text-red-600">*</span></span>
+                        <input x-ref="listingPhotoInput" class="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm outline-none file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" type="file" accept="image/jpeg,image/png,image/webp" multiple @change="handleListingPhotoSelection">
+                        <span class="mt-1 block text-xs text-slate-500">Upload 1–10 JPEG, PNG, or WebP images. Maximum 10 MB each.</span>
                       </label>
+                      <div x-show="leads.listingForm.photoPaths.length || leads.listingForm.legacyPhotoUrls.length || leads.listingForm.photoFiles.length" class="space-y-3 md:col-span-2 xl:col-span-4">
+                        <div x-show="leads.listingForm.photoPaths.length || leads.listingForm.legacyPhotoUrls.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                          <template x-for="(path, index) in leads.listingForm.photoPaths" :key="`stored-${path}`">
+                            <article class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                              <img class="h-32 w-full object-cover" :src="listingPhotoPublicUrl(path)" :alt="`Listing photo ${index + 1}`">
+                              <div class="p-2">
+                                <button x-show="listingPhotoOwnedByCurrentUser(path)" class="text-xs font-semibold text-red-700 hover:underline" type="button" @click="removeStoredListingPhoto(index)">Remove photo</button>
+                                <span x-show="!listingPhotoOwnedByCurrentUser(path)" class="text-xs font-medium text-slate-500">Only the uploader can remove this photo.</span>
+                              </div>
+                            </article>
+                          </template>
+                          <template x-for="(url, index) in leads.listingForm.legacyPhotoUrls" :key="`legacy-${url}`">
+                            <article class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                              <img class="h-32 w-full object-cover" :src="url" :alt="`Existing listing photo ${index + 1}`">
+                              <div class="p-2"><button class="text-xs font-semibold text-red-700 hover:underline" type="button" @click="removeLegacyListingPhoto(index)">Remove old URL photo</button></div>
+                            </article>
+                          </template>
+                        </div>
+                        <div x-show="leads.listingForm.photoFiles.length" class="rounded-lg border border-sky-200 bg-sky-50 p-3">
+                          <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">Ready to upload</p>
+                          <div class="mt-2 flex flex-wrap gap-2">
+                            <template x-for="(file, index) in leads.listingForm.photoFiles" :key="`${file.name}-${file.size}-${file.lastModified}`">
+                              <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-700"><span x-text="file.name"></span><button class="font-bold text-red-600" type="button" @click="removePendingListingPhoto(index)" aria-label="Remove selected photo">×</button></span>
+                            </template>
+                          </div>
+                        </div>
+                      </div>
                       <div class="flex flex-wrap gap-4 md:col-span-2 xl:col-span-4">
-                        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" x-model="leads.listingForm.showRent"> Show rent publicly</label>
-                        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" x-model="leads.listingForm.showPhotos"> Show approved photos</label>
+                        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" x-model="leads.listingForm.showRent"> Show rent publicly <span class="text-red-600">*</span></label>
+                        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" x-model="leads.listingForm.showPhotos"> Show photos publicly <span class="text-red-600">*</span></label>
                       </div>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
-                      <button class="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60" type="button" @click="saveUnitListing" :disabled="leads.saving">Save Listing</button>
+                      <button class="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60" type="button" @click="saveUnitListing" :disabled="leads.saving" x-text="leads.saving ? 'Saving...' : (leads.listingForm.status === 'published' ? 'Publish Listing' : 'Save Listing')"></button>
                       <button class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" type="button" @click="resetListingForm">Clear</button>
                     </div>
                   </section>
@@ -6480,9 +6515,11 @@
       const PAYMENT_PROOF_BUCKET = 'payment-proofs';
       const MAINTENANCE_PHOTO_BUCKET = 'maintenance-photos';
       const INSPECTION_FILE_BUCKET = 'inspection-files';
+      const LISTING_PHOTO_BUCKET = 'listing-photos';
       const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
       const MAX_PAYMENT_PROOF_UPLOAD_SIZE = 10 * 1024 * 1024;
       const MAX_INSPECTION_FILE_SIZE = 50 * 1024 * 1024;
+      const MAX_LISTING_PHOTOS = 10;
     const COMPANY_NAME = 'Mushavo Homes';
     const COMPANY_TAGLINE = 'Your property, handled simply.';
     const SUPPORT_EMAIL = 'dhruvp246@gmail.com';
@@ -7199,7 +7236,10 @@
             availableFrom: '',
             showRent: true,
             showPhotos: true,
-            photoUrls: ''
+            legacyPhotoUrls: [],
+            photoPaths: [],
+            photoFiles: [],
+            removedPhotoPaths: []
           },
           scheduleLead: null,
           scheduleForm: {
@@ -20220,6 +20260,109 @@
           return Boolean(this.permissions?.canScheduleViewings || this.permissions?.can_schedule_viewings);
         },
 
+        selectedListingUnit() {
+          return (this.leads.units || []).find((item) => item.unit_id === this.leads.listingForm.unitId) || null;
+        },
+
+        listingPhotoPublicUrl(objectPath) {
+          if (!objectPath) return '';
+          return supabaseClient.storage.from(LISTING_PHOTO_BUCKET).getPublicUrl(objectPath).data?.publicUrl || '';
+        },
+
+        listingPhotoOwnedByCurrentUser(objectPath) {
+          return Boolean(objectPath && this.profile?.id && String(objectPath).split('/')[0] === this.profile.id);
+        },
+
+        listingPhotoCount(form = this.leads.listingForm) {
+          return (form.photoPaths || []).length + (form.legacyPhotoUrls || []).length + (form.photoFiles || []).length;
+        },
+
+        validateListingForSave(form, unit) {
+          if (!form.unitId || !unit) return 'Select the unit you want to list.';
+          if (form.status !== 'published') return '';
+
+          const missing = [];
+          if (!String(form.title || '').trim()) missing.push('title');
+          if (!String(form.publicArea || '').trim()) missing.push('public area');
+          if (!form.availableFrom) missing.push('available-from date');
+          if (!String(form.summary || '').trim()) missing.push('summary');
+          if (Number(unit.monthly_rent || 0) <= 0) missing.push('unit rent');
+          if (Number(unit.bathrooms || 0) <= 0) missing.push('unit bathrooms');
+          if (this.listingPhotoCount(form) < 1) missing.push('at least one property photo');
+          if (!form.showRent) missing.push('Show rent publicly');
+          if (!form.showPhotos) missing.push('Show photos publicly');
+
+          if (missing.length) return `Complete the following before publishing: ${missing.join(', ')}.`;
+          return '';
+        },
+
+        handleListingPhotoSelection(event) {
+          this.leads.error = '';
+          const selectedFiles = Array.from(event.target.files || []);
+          try {
+            selectedFiles.forEach((file) => this.validateImageFile(file));
+            const existingKeys = new Set((this.leads.listingForm.photoFiles || []).map((file) => `${file.name}-${file.size}-${file.lastModified}`));
+            const uniqueFiles = selectedFiles.filter((file) => !existingKeys.has(`${file.name}-${file.size}-${file.lastModified}`));
+            if (this.listingPhotoCount() + uniqueFiles.length > MAX_LISTING_PHOTOS) {
+              throw new Error(`A listing can have a maximum of ${MAX_LISTING_PHOTOS} photos.`);
+            }
+            this.leads.listingForm.photoFiles = [...this.leads.listingForm.photoFiles, ...uniqueFiles];
+          } catch (error) {
+            this.leads.error = error.message;
+          } finally {
+            event.target.value = '';
+          }
+        },
+
+        removePendingListingPhoto(index) {
+          this.leads.listingForm.photoFiles.splice(index, 1);
+        },
+
+        removeStoredListingPhoto(index) {
+          const objectPath = this.leads.listingForm.photoPaths[index];
+          if (!this.listingPhotoOwnedByCurrentUser(objectPath)) {
+            this.leads.error = 'Only the person who uploaded this photo can remove it.';
+            return;
+          }
+          this.leads.error = '';
+          this.leads.listingForm.photoPaths.splice(index, 1);
+          if (!this.leads.listingForm.removedPhotoPaths.includes(objectPath)) {
+            this.leads.listingForm.removedPhotoPaths.push(objectPath);
+          }
+        },
+
+        removeLegacyListingPhoto(index) {
+          this.leads.listingForm.legacyPhotoUrls.splice(index, 1);
+        },
+
+        async uploadListingPhotoFiles(unitId, files) {
+          const uploadedPaths = [];
+          try {
+            if (!this.profile?.id) throw new Error('Your account profile could not be verified. Please sign in again.');
+            for (const [index, file] of files.entries()) {
+              this.validateImageFile(file);
+              const safeName = this.sanitizeImageName(file.name);
+              const objectPath = `${this.profile.id}/${unitId}/${Date.now()}-${index}-${this.generateSecureToken().slice(0, 16)}-${safeName}`;
+              const { error } = await supabaseClient.storage
+                .from(LISTING_PHOTO_BUCKET)
+                .upload(objectPath, file, {
+                  cacheControl: '3600',
+                  contentType: file.type || 'image/jpeg',
+                  upsert: false
+                });
+              if (error) throw error;
+              uploadedPaths.push(objectPath);
+            }
+            return uploadedPaths;
+          } catch (error) {
+            if (uploadedPaths.length) {
+              const { error: cleanupError } = await supabaseClient.storage.from(LISTING_PHOTO_BUCKET).remove(uploadedPaths);
+              if (cleanupError) console.error('[Mushavo Homes listings] incomplete upload cleanup failed', cleanupError);
+            }
+            throw error;
+          }
+        },
+
         resetListingForm() {
           this.leads.listingForm = {
             unitId: '',
@@ -20231,18 +20374,37 @@
             availableFrom: '',
             showRent: true,
             showPhotos: true,
-            photoUrls: ''
+            legacyPhotoUrls: [],
+            photoPaths: [],
+            photoFiles: [],
+            removedPhotoPaths: []
           };
+          if (this.$refs.listingPhotoInput) this.$refs.listingPhotoInput.value = '';
         },
 
         syncListingFormUnit() {
           const unit = (this.leads.units || []).find((item) => item.unit_id === this.leads.listingForm.unitId);
-          if (!unit) return;
-          this.leads.listingForm.title = unit.listing_title || `${unit.property_name} / Unit ${unit.unit_number}`;
-          this.leads.listingForm.publicArea = unit.public_area || unit.city || '';
-          this.leads.listingForm.availabilityStatus = unit.availability_status || (unit.unit_status === 'vacant' ? 'available' : 'available_soon');
-          this.leads.listingForm.availableFrom = unit.available_from || '';
-          this.leads.listingForm.status = unit.listing_status || 'draft';
+          if (!unit) {
+            this.resetListingForm();
+            return;
+          }
+          this.leads.error = '';
+          this.leads.listingForm = {
+            unitId: unit.unit_id,
+            status: unit.listing_status || 'draft',
+            title: unit.listing_title || `${unit.property_name} / Unit ${unit.unit_number}`,
+            summary: unit.listing_summary || '',
+            publicArea: unit.public_area || unit.city || '',
+            availabilityStatus: unit.availability_status || (unit.unit_status === 'vacant' ? 'available' : 'available_soon'),
+            availableFrom: unit.available_from || '',
+            showRent: unit.show_rent !== false,
+            showPhotos: unit.show_photos !== false,
+            legacyPhotoUrls: Array.isArray(unit.photo_urls) ? [...unit.photo_urls] : [],
+            photoPaths: Array.isArray(unit.photo_paths) ? [...unit.photo_paths] : [],
+            photoFiles: [],
+            removedPhotoPaths: []
+          };
+          if (this.$refs.listingPhotoInput) this.$refs.listingPhotoInput.value = '';
         },
 
         async loadLeadsPage() {
@@ -20269,15 +20431,22 @@
         },
 
         async saveUnitListing() {
-          this.leads.saving = true;
           this.leads.error = '';
           this.leads.message = '';
           const form = this.leads.listingForm;
+          const unit = this.selectedListingUnit();
+          const validationError = this.validateListingForSave(form, unit);
+          if (validationError) {
+            this.leads.error = validationError;
+            return;
+          }
+
+          this.leads.saving = true;
+          let uploadedPaths = [];
+          let listingSaved = false;
           try {
-            const photoUrls = (form.photoUrls || '')
-              .split('\n')
-              .map((url) => url.trim())
-              .filter(Boolean);
+            uploadedPaths = await this.uploadListingPhotoFiles(form.unitId, form.photoFiles || []);
+            const finalPhotoPaths = [...(form.photoPaths || []), ...uploadedPaths];
             const { error } = await supabaseClient.rpc('upsert_unit_listing', {
               p_unit_id: form.unitId,
               p_status: form.status,
@@ -20288,13 +20457,29 @@
               p_available_from: form.availableFrom || null,
               p_show_rent: Boolean(form.showRent),
               p_show_photos: Boolean(form.showPhotos),
-              p_photo_urls: photoUrls
+              p_photo_paths: finalPhotoPaths,
+              p_legacy_photo_urls: form.legacyPhotoUrls || []
             });
             if (error) throw error;
-            this.leads.message = form.status === 'published' ? 'Listing published.' : 'Listing saved.';
+            listingSaved = true;
+
+            let removalWarning = '';
+            if (form.removedPhotoPaths?.length) {
+              const { error: removalError } = await supabaseClient.storage.from(LISTING_PHOTO_BUCKET).remove(form.removedPhotoPaths);
+              if (removalError) {
+                removalWarning = ' The listing was saved, but one or more removed photo files could not be deleted.';
+                console.error('[Mushavo Homes listings] photo removal failed', removalError);
+              }
+            }
+
+            this.leads.message = `${form.status === 'published' ? 'Listing published.' : 'Listing saved.'}${removalWarning}`;
             this.resetListingForm();
             await this.loadLeadsPage();
           } catch (error) {
+            if (!listingSaved && uploadedPaths.length) {
+              const { error: cleanupError } = await supabaseClient.storage.from(LISTING_PHOTO_BUCKET).remove(uploadedPaths);
+              if (cleanupError) console.error('[Mushavo Homes listings] orphan photo cleanup failed', cleanupError);
+            }
             this.leads.error = this.friendlyDatabaseError(error, 'Listing could not be saved.');
           } finally {
             this.leads.saving = false;
