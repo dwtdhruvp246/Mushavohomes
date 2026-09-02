@@ -4430,13 +4430,69 @@
                     </div>
 
                     <div class="mt-5 flex flex-wrap gap-2 border-b border-slate-200">
-                      <button class="border-b-2 px-3 py-2 text-sm font-semibold" type="button" :class="payments.activeTab === 'pending' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-900'" @click="payments.activeTab = 'pending'">Pending Submissions</button>
+                      <button class="border-b-2 px-3 py-2 text-sm font-semibold" type="button" :class="payments.activeTab === 'rent_due' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-900'" @click="payments.activeTab = 'rent_due'">Pending Rent <span class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700" x-text="pendingRentPayments().length"></span></button>
+                      <button class="border-b-2 px-3 py-2 text-sm font-semibold" type="button" :class="payments.activeTab === 'pending' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-900'" @click="payments.activeTab = 'pending'">Pending Submissions <span class="ml-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-700" x-text="payments.pendingSubmissions.length"></span></button>
                       <button class="border-b-2 px-3 py-2 text-sm font-semibold" type="button" :class="payments.activeTab === 'verified' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-900'" @click="payments.activeTab = 'verified'">Verified Payments</button>
                     </div>
 
                     <template x-if="payments.error">
                       <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" x-text="payments.error"></div>
                     </template>
+                  </section>
+
+                  <section x-show="payments.activeTab === 'rent_due'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"><p class="text-xs font-medium text-slate-500 sm:text-sm">Total Pending Rent</p><p class="mt-1 text-xl font-bold text-amber-700 sm:text-2xl" x-text="formatCurrency(pendingRentStats().total)"></p></div>
+                      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"><p class="text-xs font-medium text-slate-500 sm:text-sm">Tenants</p><p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl" x-text="pendingRentStats().tenants"></p></div>
+                      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"><p class="text-xs font-medium text-slate-500 sm:text-sm">Rent Periods</p><p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl" x-text="pendingRentStats().periods"></p></div>
+                      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"><p class="text-xs font-medium text-slate-500 sm:text-sm">Proofs to Review</p><p class="mt-1 text-xl font-bold text-sky-700 sm:text-2xl" x-text="pendingRentStats().awaitingReview"></p></div>
+                    </div>
+
+                    <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
+                      <div class="border-b border-slate-200 px-4 py-3">
+                        <h2 class="text-sm font-semibold text-slate-900">Pending Rent Details</h2>
+                        <p class="mt-1 text-xs text-slate-500">Amounts are reduced only by verified rent payments. Submitted proofs awaiting approval are shown separately.</p>
+                      </div>
+                      <div class="overflow-x-auto">
+                        <table class="min-w-[1050px] w-full divide-y divide-slate-200 text-left text-[13px]">
+                          <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <tr>
+                              <th class="px-4 py-3 font-semibold">Tenant</th>
+                              <th class="px-4 py-3 font-semibold">Property / Unit</th>
+                              <th class="px-4 py-3 font-semibold">Rent Period</th>
+                              <th class="px-4 py-3 font-semibold">Monthly Rent</th>
+                              <th class="px-4 py-3 font-semibold">Verified Paid</th>
+                              <th class="px-4 py-3 font-semibold">Pending Submission</th>
+                              <th class="px-4 py-3 font-semibold">Amount Pending</th>
+                              <th class="px-4 py-3 font-semibold">Status</th>
+                              <th class="px-4 py-3 font-semibold">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-slate-200">
+                            <template x-if="!payments.loading && pendingRentPayments().length === 0">
+                              <tr><td class="px-4 py-8 text-center text-sm text-slate-500" colspan="9">No pending rent payments.</td></tr>
+                            </template>
+                            <template x-for="row in pendingRentPayments()" :key="row.id">
+                              <tr class="odd:bg-white even:bg-slate-50/60 align-top">
+                                <td class="px-4 py-3"><p class="font-semibold text-slate-900" x-text="row.tenantName"></p><p class="text-xs text-slate-500" x-text="row.tenantEmail || '-' "></p></td>
+                                <td class="px-4 py-3"><p class="font-semibold text-slate-900" x-text="row.propertyName"></p><p class="text-xs text-slate-500" x-text="`Unit ${row.unitNumber}`"></p></td>
+                                <td class="px-4 py-3 text-slate-700" x-text="row.periodLabel"></td>
+                                <td class="px-4 py-3 text-slate-700" x-text="formatCurrency(row.monthlyRent)"></td>
+                                <td class="px-4 py-3 text-emerald-700" x-text="formatCurrency(row.verifiedPaid)"></td>
+                                <td class="px-4 py-3" :class="row.submittedAmount > 0 ? 'font-semibold text-sky-700' : 'text-slate-400'" x-text="row.submittedAmount > 0 ? formatCurrency(row.submittedAmount) : '-' "></td>
+                                <td class="px-4 py-3 font-bold text-amber-700" x-text="formatCurrency(row.amountPending)"></td>
+                                <td class="px-4 py-3"><span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold" :class="pendingRentStatusBadgeClass(row.status)" x-text="pendingRentStatusLabel(row.status)"></span></td>
+                                <td class="px-4 py-3">
+                                  <button x-show="row.submittedAmount > 0" class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100" type="button" @click="payments.activeTab = 'pending'">Review submission</button>
+                                  <button x-show="row.submittedAmount <= 0 && canVerifyPayments()" class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100" type="button" @click="openManualPaymentForPending(row)">Log payment</button>
+                                  <span x-show="row.submittedAmount <= 0 && !canVerifyPayments()" class="text-xs font-medium text-slate-500">View only</span>
+                                </td>
+                              </tr>
+                            </template>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
                   </section>
 
                   <section x-show="payments.activeTab === 'pending'" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
@@ -7144,7 +7200,7 @@
           loading: false,
           saving: false,
           error: '',
-          activeTab: 'pending',
+          activeTab: 'rent_due',
           modal: '',
           selectedSubmission: null,
           pendingSubmissions: [],
@@ -15069,6 +15125,114 @@
           return outstanding;
         },
 
+        pendingRentPayments() {
+          const rows = [];
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const currentMonth = this.monthStart(today);
+
+          (this.payments.leases || []).forEach((lease) => {
+            if (!lease?.id || !lease.start_date || !currentMonth) return;
+            const leaseStart = this.monthStart(lease.start_date);
+            const leaseEnd = lease.end_date ? this.monthStart(lease.end_date) : null;
+            const monthlyRent = Number(lease.monthly_rent || 0);
+            if (!leaseStart || leaseStart > currentMonth || monthlyRent <= 0) return;
+
+            const lastDueMonth = leaseEnd && leaseEnd < currentMonth ? leaseEnd : currentMonth;
+            const verifiedByMonth = new Map();
+            const submittedByMonth = new Map();
+
+            (this.payments.verifiedPayments || [])
+              .filter((payment) => payment.lease_id === lease.id && this.isRentPayment(payment))
+              .forEach((payment) => {
+                const key = this.monthKey(payment.rent_period_start || payment.payment_date);
+                if (!key) return;
+                verifiedByMonth.set(key, (verifiedByMonth.get(key) || 0) + this.paymentLikeAmount(payment));
+              });
+
+            (this.payments.pendingSubmissions || [])
+              .filter((submission) => submission.lease_id === lease.id && submission.status === 'pending' && this.isRentPayment(submission))
+              .forEach((submission) => {
+                const key = this.monthKey(submission.rent_period_start || submission.payment_date);
+                if (!key) return;
+                submittedByMonth.set(key, (submittedByMonth.get(key) || 0) + this.paymentLikeAmount(submission));
+              });
+
+            for (let cursor = leaseStart; cursor <= lastDueMonth; cursor = this.addMonths(cursor, 1)) {
+              const periodStart = this.toIsoDate(cursor);
+              const month = periodStart.slice(0, 7);
+              const verifiedPaid = Math.max(verifiedByMonth.get(month) || 0, 0);
+              const amountPending = Math.max(monthlyRent - verifiedPaid, 0);
+              if (amountPending < 0.005) continue;
+
+              const submittedAmount = Math.min(Math.max(submittedByMonth.get(month) || 0, 0), amountPending);
+              const isOverdue = this.monthEnd(cursor) < today;
+              const status = submittedAmount >= amountPending - 0.005
+                ? 'awaiting_review'
+                : submittedAmount > 0
+                  ? 'partially_submitted'
+                  : isOverdue ? 'overdue' : 'current';
+              const tenant = lease.tenant || lease.tenants || {};
+              const unit = lease.unit || lease.units || {};
+              const property = unit.properties || unit.property || {};
+
+              rows.push({
+                id: `${lease.id}-${month}`,
+                leaseId: lease.id,
+                tenantId: lease.tenant_id || tenant.id || '',
+                tenantName: tenant.full_name || 'Tenant',
+                tenantEmail: tenant.email || '',
+                propertyName: property.name || 'Property',
+                unitNumber: unit.unit_number || '-',
+                periodStart,
+                periodLabel: `${this.rentPeriodBaseLabel(cursor)} rent`,
+                monthlyRent,
+                verifiedPaid: Math.min(verifiedPaid, monthlyRent),
+                submittedAmount,
+                amountPending,
+                status
+              });
+            }
+          });
+
+          const statusRank = { overdue: 0, partially_submitted: 1, awaiting_review: 2, current: 3 };
+          return rows.sort((a, b) => {
+            const statusDifference = (statusRank[a.status] ?? 4) - (statusRank[b.status] ?? 4);
+            if (statusDifference) return statusDifference;
+            const periodDifference = a.periodStart.localeCompare(b.periodStart);
+            if (periodDifference) return periodDifference;
+            return a.tenantName.localeCompare(b.tenantName);
+          });
+        },
+
+        pendingRentStats() {
+          const rows = this.pendingRentPayments();
+          return {
+            total: rows.reduce((sum, row) => sum + row.amountPending, 0),
+            tenants: new Set(rows.map((row) => row.tenantId || row.tenantEmail || row.tenantName)).size,
+            periods: rows.length,
+            awaitingReview: rows.filter((row) => row.submittedAmount > 0).length
+          };
+        },
+
+        pendingRentStatusLabel(status) {
+          return ({
+            overdue: 'Overdue',
+            current: 'Due this month',
+            awaiting_review: 'Proof awaiting approval',
+            partially_submitted: 'Partially submitted'
+          })[status] || 'Pending';
+        },
+
+        pendingRentStatusBadgeClass(status) {
+          return ({
+            overdue: 'bg-red-100 text-red-700',
+            current: 'bg-amber-100 text-amber-700',
+            awaiting_review: 'bg-sky-100 text-sky-700',
+            partially_submitted: 'bg-purple-100 text-purple-700'
+          })[status] || 'bg-slate-100 text-slate-600';
+        },
+
         expectedDueRentPeriodCount(lease, throughDate = new Date()) {
           if (!lease?.id || !lease?.start_date) return 0;
 
@@ -15314,6 +15478,14 @@
             tenantPayment: this.tenantPaymentPeriodOptions()
           }[scope] || [];
           return options[0]?.key || '';
+        },
+
+        openManualPaymentForPending(row) {
+          if (!row?.leaseId || !this.canVerifyPayments()) return;
+          this.openManualPaymentModal();
+          this.payments.manualForm.leaseId = row.leaseId;
+          this.payments.manualForm.rentPeriodKey = row.periodStart;
+          this.payments.manualForm.amount = Number(row.amountPending || 0);
         },
 
         openManualPaymentModal() {
