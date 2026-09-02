@@ -42,29 +42,29 @@
         <form id="filters" class="grid gap-3 rounded-3xl border border-white/70 bg-white/60 p-4 shadow-xl shadow-emerald-950/5 backdrop-blur-xl sm:grid-cols-2">
           <label class="text-sm font-semibold text-slate-700">Country
             <select id="countryFilter" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100">
-              <option value="">All countries</option>
+              <option value="">Select country</option>
             </select>
           </label>
           <label class="text-sm font-semibold text-slate-700">City or area
-            <input id="areaFilter" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" placeholder="Harare, Nilai...">
+            <input id="areaFilter" disabled class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" placeholder="Harare, Bulawayo...">
           </label>
           <label class="text-sm font-semibold text-slate-700">Min rent
-            <input id="minRentFilter" type="number" min="0" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" placeholder="0">
+            <input id="minRentFilter" type="number" min="0" disabled class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" placeholder="0">
           </label>
           <label class="text-sm font-semibold text-slate-700">Max rent
-            <input id="maxRentFilter" type="number" min="0" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" placeholder="Any">
+            <input id="maxRentFilter" type="number" min="0" disabled class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" placeholder="Any">
           </label>
           <label class="text-sm font-semibold text-slate-700">Bedrooms
-            <input id="bedroomsFilter" type="number" min="0" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" placeholder="Any">
+            <input id="bedroomsFilter" type="number" min="0" disabled class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" placeholder="Any">
           </label>
           <label class="text-sm font-semibold text-slate-700">Availability
-            <select id="availabilityFilter" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100">
+            <select id="availabilityFilter" disabled class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white/80 px-3 text-slate-900 outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
               <option value="">Any</option>
               <option value="available">Available now</option>
               <option value="available_soon">Available soon</option>
             </select>
           </label>
-          <button class="h-12 rounded-xl bg-emerald-600 px-5 font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-700 sm:col-span-2" type="submit">Search Listings</button>
+          <button id="searchButton" disabled class="h-12 rounded-xl bg-emerald-600 px-5 font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none sm:col-span-2" type="submit">Select a Country First</button>
         </form>
       </div>
     </section>
@@ -112,6 +112,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const LISTING_PHOTO_BUCKET = 'listing-photos';
     const state = { listings: [], selectedListing: null };
+    const dependentFilterIds = ['areaFilter', 'minRentFilter', 'maxRentFilter', 'bedroomsFilter', 'availabilityFilter'];
 
     const el = (id) => document.getElementById(id);
     const money = (amount, currency) => amount == null ? 'Rent on request' : `${currency || '$'}${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -125,18 +126,52 @@
       box.classList.remove('hidden');
     }
 
-    function renderCountryOptions() {
+    function renderCountryOptions(listings) {
       const select = el('countryFilter');
       const previous = select.value;
       const countries = new Map();
-      state.listings.forEach((listing) => {
+      listings.forEach((listing) => {
         if (listing.country_id && listing.country_name) countries.set(listing.country_id, listing.country_name);
       });
-      select.innerHTML = '<option value="">All countries</option>' + [...countries.entries()]
+      select.innerHTML = '<option value="">Select country</option>' + [...countries.entries()]
         .sort((a, b) => a[1].localeCompare(b[1]))
         .map(([id, name]) => `<option value="${id}">${name}</option>`)
         .join('');
       select.value = previous;
+    }
+
+    function resetDependentFilters() {
+      dependentFilterIds.forEach((id) => { el(id).value = ''; });
+    }
+
+    function setDependentFiltersEnabled(enabled) {
+      dependentFilterIds.forEach((id) => { el(id).disabled = !enabled; });
+      el('searchButton').disabled = !enabled;
+      el('searchButton').textContent = enabled ? 'Search Listings' : 'Select a Country First';
+    }
+
+    function showCountryPrompt() {
+      state.listings = [];
+      el('listings').innerHTML = '';
+      showStatus('Select a country to view available properties. You can then narrow the results by city, area, rent, bedrooms, or availability.');
+    }
+
+    async function loadCountryOptions() {
+      showCountryPrompt();
+      const { data, error } = await supabaseClient.rpc('get_public_unit_listings', {
+        p_country_id: null,
+        p_area: null,
+        p_min_rent: null,
+        p_max_rent: null,
+        p_bedrooms: null,
+        p_availability: null
+      });
+      if (error) {
+        showStatus('Available countries could not be loaded. Please try again.', 'error');
+        return;
+      }
+      renderCountryOptions(data || []);
+      if (!(data || []).length) showStatus('No countries currently have published listings.');
     }
 
     function listingPhotoUrls(listing) {
@@ -172,10 +207,16 @@
     }
 
     async function loadListings() {
+      const countryId = el('countryFilter').value;
+      if (!countryId) {
+        setDependentFiltersEnabled(false);
+        showCountryPrompt();
+        return;
+      }
       el('listings').innerHTML = '<div class="rounded-3xl border border-white/70 bg-white/70 p-6 text-slate-600 shadow-xl backdrop-blur-xl md:col-span-2 xl:col-span-3">Loading available units...</div>';
       el('status').classList.add('hidden');
       const params = {
-        p_country_id: el('countryFilter').value || null,
+        p_country_id: countryId,
         p_area: el('areaFilter').value.trim() || null,
         p_min_rent: el('minRentFilter').value ? Number(el('minRentFilter').value) : null,
         p_max_rent: el('maxRentFilter').value ? Number(el('maxRentFilter').value) : null,
@@ -189,10 +230,17 @@
         return;
       }
       state.listings = data || [];
-      renderCountryOptions();
       el('listings').innerHTML = state.listings.length
         ? state.listings.map(listingCard).join('')
         : '<div class="rounded-3xl border border-white/70 bg-white/70 p-6 text-slate-600 shadow-xl backdrop-blur-xl md:col-span-2 xl:col-span-3">No public listings match your filters yet.</div>';
+    }
+
+    function handleCountryChange() {
+      const hasCountry = Boolean(el('countryFilter').value);
+      resetDependentFilters();
+      setDependentFiltersEnabled(hasCountry);
+      if (hasCountry) loadListings();
+      else showCountryPrompt();
     }
 
     function openLeadModal(id) {
@@ -244,6 +292,7 @@
       event.preventDefault();
       loadListings();
     });
+    el('countryFilter').addEventListener('change', handleCountryChange);
     el('listings').addEventListener('click', (event) => {
       const button = event.target.closest('[data-lead]');
       if (button) openLeadModal(button.dataset.lead);
@@ -253,7 +302,8 @@
       if (event.target.id === 'leadModal') closeLeadModal();
     });
     el('leadForm').addEventListener('submit', submitLead);
-    loadListings();
+    setDependentFiltersEnabled(false);
+    loadCountryOptions();
   </script>
 </body>
 </html>
