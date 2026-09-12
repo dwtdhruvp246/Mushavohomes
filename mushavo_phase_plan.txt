@@ -1,0 +1,282 @@
+Mushavo Homes Competitor Research Phase Plan
+=====================================
+
+I read through the competitor research document carefully. The biggest lesson is this:
+Mushavo Homes should not become "many pages with many buttons." The strongest systems win because they connect the full workflow: rent, lease, tenant, landlord, maintenance, documents, payments, permissions, and records all talking to each other.
+
+Build this in phases so the current system does not break.
+
+
+Already In Mushavo Homes
+------------------
+
+Mushavo Homes already has a strong base:
+
+- Admin, admin staff, landlord, tenant, IPM, PMC, landlord staff, and PMC staff roles
+- Country-based setup and pricing
+- Subscription plans and limits
+- Property, unit, tenant, lease, payment, and maintenance flows
+- File uploads for proofs, lease PDFs, and images
+- Notifications
+- Enquiries
+- Notes
+- Multi-language support
+- Mobile responsive layout
+- Permissions for staff, IPM, and PMC access
+- Tenant/landlord linking flow
+- Supabase auth, database, storage, and RLS foundation
+
+Do not rebuild everything. Strengthen the system layer by layer.
+
+
+Phase 1: Trust And Finance Core
+-------------------------------
+
+This should come first because landlords, IPMs, and PMCs will trust Mushavo Homes only if money records are solid.
+
+Add:
+
+- Proper rent roll
+- Recurring rent invoices
+- Payment allocation by month
+- Partial payments
+- Rent arrears history
+- Deposit ledger separate from revenue
+- Other charges separate from rent
+- Tenant ledger
+- Property ledger
+- Landlord/IPM/PMC payment history
+- Receipt PDF generation
+- Audit log for all money changes
+- Period/month-end lock so old financial records cannot be quietly changed
+
+Where it goes:
+
+- Landlord Finance page
+- Tenant Payments page
+- Admin Finance page
+- IPM/PMC Finance page
+- Dashboard cards
+
+This also fixes logic like: maintenance payment should not reduce rent balance.
+
+
+Phase 2: Owner / Landlord Statements
+------------------------------------
+
+This is important for PMCs and IPMs.
+
+Add:
+
+- Monthly landlord statement
+- Rent collected
+- Expenses
+- Management fees
+- Outstanding rent
+- Net amount payable
+- PDF export
+- Payment history per landlord
+- Internal notes visible only to admin/IPM/PMC
+
+Where it goes:
+
+- IPM Finance
+- PMC Finance
+- Landlord My Account / Finance
+- Admin user payment history
+
+
+Phase 3: Maintenance Workflow
+-----------------------------
+
+Current maintenance should become more structured.
+
+Add:
+
+- Maintenance request categories
+- Priority: low, normal, urgent
+- Assign only eligible staff
+- Work order status
+- Staff/vendor notes
+- Before/after photos
+- Cost estimate
+- Approval required above a threshold
+- Completion evidence
+- Maintenance expense linked to finance
+- SLA tracking: open too long, in progress too long, resolved
+
+Where it goes:
+
+- Tenant Maintenance
+- Landlord Maintenance
+- Staff Maintenance
+- IPM/PMC Maintenance
+- Dashboard maintenance cards
+
+
+Phase 4: Leasing And Tenant Lifecycle
+-------------------------------------
+
+This is where Mushavo Homes becomes more professional than a simple rent tracker.
+
+Add:
+
+- Tenant application flow
+- Tenant documents
+- Lease generation checklist
+- Move-in checklist
+- Move-out checklist
+- Lease renewal reminders
+- Lease expiry workflow
+- Deposit settlement workflow
+- Tenant rental history report
+- Tenant reference request with consent
+
+Where it goes:
+
+- Leases page
+- Tenants page or tenant profile area
+- Tenant account
+- Notifications
+
+
+Phase 5: Inspections
+--------------------
+
+Very useful for PMCs and landlords.
+
+Add:
+
+- Move-in inspection
+- Routine inspection
+- Move-out inspection
+- Photos/videos
+- Meter readings
+- Room-by-room condition
+- Tenant signature
+- Locked inspection record
+- Compare move-in vs move-out
+- Deposit deduction evidence
+
+Where it goes:
+
+- Property/unit details
+- Tenant profile
+- Lease details
+- Maintenance/inspection section
+
+
+Phase 6: CRM And Public Vacancy Flow
+------------------------------------
+
+This is more advanced, but powerful later.
+
+Add:
+
+- Public available units/listings
+- Enquiry capture
+- Viewing requests
+- Applicant pipeline
+- Application status
+- Saved leads
+- Conversion tracking
+- Follow-up reminders
+
+Where it goes:
+
+- Public website
+- Admin enquiries
+- Landlord/IPM/PMC dashboard
+- New "Applications" or "Leads" page
+
+
+Phase 7: Permissions And Audit Control
+--------------------------------------
+
+This needs to be treated as a core product feature.
+
+Add:
+
+- One central permission matrix
+- Parent-child permission rules
+- Example: cannot edit unit unless they can view unit
+- Every button hidden if permission is missing
+- Every Supabase action protected by RLS/function checks
+- Audit log for create/edit/delete/archive/approve/export/view financial record
+- Staff action history
+
+Where it goes:
+
+- Staff permission modals
+- PMC staff permission modals
+- IPM/PMC access permissions
+- Admin audit page
+
+
+Phase 8: Automation
+-------------------
+
+After the core is stable.
+
+Add:
+
+- Rent due reminders
+- Lease expiry reminders
+- Subscription expiry reminders
+- Maintenance escalation
+- Payment received notifications
+- Overdue rent alerts
+- Custom message templates
+- Email integration later
+
+Where it goes:
+
+- Settings
+- Notifications
+- Admin controls
+
+
+Phase 9: AI Later, Not Now
+--------------------------
+
+The document mentions AI-style features from competitors. Do not build AI first.
+
+Later we can add:
+
+- AI search across leases, payments, tenants, maintenance
+- AI summary of a tenant/property
+- AI maintenance triage
+- AI arrears summary
+- AI document extraction
+
+Only add these after permissions, audit logs, and finance are reliable.
+
+
+What Not To Build Yet
+---------------------
+
+Delay these:
+
+- Tenant risk scoring
+- Blacklists
+- Insurance/rent guarantees
+- Marketplace vendors
+- Automated legal advice
+- AI making financial changes
+- Bank integrations before ledger logic is solid
+
+These are powerful, but risky if built too early.
+
+
+Recommended Next Build Order
+----------------------------
+
+1. Fix the financial core: invoices, ledger, rent allocation, deposits, other charges.
+2. Add audit logs for all important changes.
+3. Add proper rent roll and arrears.
+4. Add owner/landlord statements.
+5. Upgrade maintenance into work orders.
+6. Add inspections and deposit settlement.
+7. Add CRM/applications later.
+
+The goal should be: every action creates a clean record, every record has ownership, every user only sees what they should, and money is never mixed up.

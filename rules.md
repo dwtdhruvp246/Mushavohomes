@@ -1,12 +1,12 @@
-# Mushavo Product And Engineering Rules
+# Mushavo Homes Product And Engineering Rules
 
-Last updated: July 18, 2026
+Last updated: August 9, 2026
 
-Status: Draft for owner review. This file records the current product decisions, business rules, security rules, UI expectations, and regression checks for Mushavo. If this file conflicts with old code or an old continuation prompt, this file represents the newer decision unless the owner explicitly changes it.
+Status: Draft for owner review. This file records the current product decisions, business rules, security rules, UI expectations, and regression checks for Mushavo Homes. If this file conflicts with old code or an old continuation prompt, this file represents the newer decision unless the owner explicitly changes it.
 
 ## 1. Purpose And Change Control
 
-1. Read this file before changing Mushavo code, SQL, pricing, roles, permissions, subscriptions, invitations, deletion, or navigation.
+1. Read this file before changing Mushavo Homes code, SQL, pricing, roles, permissions, subscriptions, invitations, deletion, or navigation.
 2. Do not restart the project or replace working features with a new implementation unless explicitly requested.
 3. A new feature must preserve all unrelated existing functions.
 4. When a product decision changes, update this file in the same change.
@@ -34,7 +34,7 @@ The public website and client area are separate files:
 Working source folder:
 
 ```text
-C:\Users\HP\Documents\Codex\2026-06-29\a\rentradar2
+C:\Users\HP\Desktop\Mushavo Homes
 ```
 
 User testing/output folder:
@@ -45,8 +45,8 @@ C:\Users\HP\Documents\Codex\2026-06-29\ne\outputs
 
 Rules:
 
-- Work from local files, not the GitHub repository, unless the owner explicitly changes this instruction.
-- After a finished local change, synchronize the affected files to the output folder when permission is available.
+- Work from the canonical Windows folder using a focused Git branch created from the latest GitHub `main`.
+- After validation, commit and push the focused branch; merge into `main` only after the owner approves testing.
 - When a fix requires SQL or HTML code, update the whole relevant local file instead of only sending loose snippets. SQL changes belong in `rentradar_loop1_schema.sql`; HTML/client changes belong in the affected `.html` file. Snippets may be shown only as an explanation after the file has been updated, or when file editing is genuinely blocked and that blocker is clearly stated.
 - Do not overwrite `client.html` while editing the public site.
 - Do not move the client app back into `index.html` unless explicitly requested.
@@ -54,7 +54,7 @@ Rules:
 
 ## 3. Brand And Terminology
 
-- Product name: Mushavo
+- Product name: Mushavo Homes
 - Tagline: Your property, handled simply.
 - Do not display RentRadar, Rent Radar, or Musha.
 - IPM means Individual Portfolio Manager.
@@ -64,8 +64,8 @@ Rules:
 - Internal database identifiers may retain legacy names such as `freelancer`, `management_leader`, `management_staff`, and `management_companies` until a deliberate migration is approved.
 - Landlord staff means personal staff created by one landlord and serving only that landlord.
 - PMC staff means internal staff created by one PMC and serving only that PMC.
-- Admin staff means Mushavo's own staff, created by the super admin and assigned to one or more countries.
-- Tenant means a global Mushavo identity linked to landlord-specific tenant relationships.
+- Admin staff means Mushavo Homes' own staff, created by the super admin and assigned to one or more countries.
+- Tenant means a global Mushavo Homes identity linked to landlord-specific tenant relationships.
 
 ## 4. Architecture And Security
 
@@ -123,11 +123,11 @@ Rules:
 
 ### 5.5 IPM
 
-- Created/invited by the Mushavo admin. There is no public IPM signup.
+- Created/invited by the Mushavo Homes admin. There is no public IPM signup.
 - Can serve multiple landlords according to its subscription limit.
 - Uses a Landlords page to search for an existing landlord by email.
 - If found, requests access.
-- If not found, can invite the landlord to create a free Mushavo landlord account.
+- If not found, can invite the landlord to create a free Mushavo Homes landlord account.
 - Landlord approval and explicit permissions are required before landlord data becomes accessible.
 - Has My Account with subscription details.
 - IPM is not a personal landlord staff member.
@@ -135,7 +135,7 @@ Rules:
 
 ### 5.6 PMC Leader
 
-- Created/invited by the Mushavo admin. There is no public PMC signup.
+- Created/invited by the Mushavo Homes admin. There is no public PMC signup.
 - Has a landlord-style operational dashboard and pages.
 - Can add internal PMC staff before connecting any landlord.
 - Uses a separate Connected Landlords page, not a landlord section mixed into the Staff page.
@@ -149,7 +149,7 @@ Rules:
 
 - Created by the PMC leader.
 - Serves only that PMC.
-- Does not require landlord approval merely to activate the Mushavo account.
+- Does not require landlord approval merely to activate the Mushavo Homes account.
 - Can register and log in immediately after accepting the PMC invite and setting a password, even when no landlord is connected or assigned.
 - Access to landlord operations is limited by both:
   - the permissions the landlord granted to the PMC
@@ -158,7 +158,7 @@ Rules:
 
 ### 5.8 Tenant
 
-- A tenant login is a global Mushavo identity and is not owned permanently by one landlord.
+- A tenant login is a global Mushavo Homes identity and is not owned permanently by one landlord.
 - A tenant can move and later connect to another landlord using the same login.
 - Landlord-specific `tenants` rows are relationship records, not separate global identities.
 - The same tenant profile can have multiple historical landlord relationships but cannot have duplicate active relationships with the same landlord.
@@ -194,7 +194,7 @@ No landlord creation path may default to Starter - Trial or any other paid/trial
 - Direct signup is for landlords only.
 - Before creating a Supabase Auth user, check both normalized email and normalized full phone number.
 - If either already exists, stop before `auth.signUp()`.
-- Show: `Your account already exists. Please contact Mushavo Support.`
+- Show: `Your account already exists. Please contact Mushavo Homes Support.`
 - A duplicate check must not leave a partial Auth user behind.
 - Phone matching uses country code plus national number in a normalized international format.
 
@@ -239,7 +239,7 @@ Admin and admin staff subscription dialogs use one Plan / Status dropdown, not s
 
 - `active`: account is allowed while plan conditions are valid.
 - `trial`: account is allowed until trial expiry.
-- `suspended`: explicitly paused by Mushavo admin, regardless of an unexpired date.
+- `suspended`: explicitly paused by Mushavo Homes admin, regardless of an unexpired date.
 - `expired`: derived when a paid/trial expiry date is in the past.
 - Free - Active has no practical expiry and must not become expired because of a compatibility date or malformed old date.
 
@@ -252,12 +252,12 @@ Suspended account message and expired account message are different.
 For an expired subscription:
 
 ```text
-Your Mushavo subscription has expired, and your account access is currently paused. Your data is still safely stored.
+Your Mushavo Homes subscription has expired, and your account access is currently paused. Your data is still safely stored.
 
 Please contact support to renew your subscription and restore access.
 ```
 
-For a suspended account, state that access was paused by the Mushavo administrator and direct the user to support. Do not call it expired.
+For a suspended account, state that access was paused by the Mushavo Homes administrator and direct the user to support. Do not call it expired.
 
 Landlord staff inherit the landlord subscription lockout. PMC staff inherit the PMC subscription lockout.
 
@@ -280,7 +280,7 @@ Landlord staff inherit the landlord subscription lockout. PMC staff inherit the 
 - Block creation when `current_count >= limit`.
 - A limit of 2 with 1 existing record must allow the second record.
 - Count accepted records and active pending invites deliberately. Do not accidentally count the same accepted person and stale invite twice.
-- Convert all database limit failures to clear Mushavo messages.
+- Convert all database limit failures to clear Mushavo Homes messages.
 - Never show RLS, constraint, trigger, SQLSTATE, or raw Supabase errors to users.
 
 ### 7.6 Pricing Rules
@@ -335,7 +335,7 @@ These actions are different and must not share vague confirmation text.
 - Supabase `SIGNED_IN` or token refresh events for the same current user must not call the full fresh-login flow.
 - Restore the last valid page for the current shell.
 - Refresh buttons reload current page data and do not route to Dashboard.
-- The app must never remain permanently on `Loading Mushavo...`.
+- The app must never remain permanently on `Loading Mushavo Homes...`.
 - Account type appears beside the logo where appropriate.
 - PMC leader and PMC staff show the PMC company name in the agreed header position.
 
@@ -556,7 +556,7 @@ Rules:
 ## 17. Staff Lists And Assignment
 
 - Admin IPM page lists only IPMs and pending IPM invites.
-- Admin Staff page lists only Mushavo admin staff.
+- Admin Staff page lists only Mushavo Homes admin staff.
 - Landlord Staff page lists personal landlord staff, eligible IPM requests/relationships, and PMC requests/relationships in clearly separate concepts.
 - PMC Staff page lists only that PMC's internal staff.
 - Accepted accounts and pending invites must not appear as duplicates.
@@ -568,15 +568,15 @@ Rules:
 
 ### 18.1 Home
 
-- Clearly explains what Mushavo is and who it benefits.
+- Clearly explains what Mushavo Homes is and who it benefits.
 - Covers landlords, tenants, IPMs, and PMCs.
 - Explains properties/units, rent and payments, leases/documents, maintenance, files, finance, and account collaboration.
 - Uses the full available desktop width responsibly while remaining unchanged/responsive on phones.
-- Logo is the brand; do not repeat a separate Mushavo text wordmark next to it if redundant.
+- Logo is the brand; do not repeat a separate Mushavo Homes text wordmark next to it if redundant.
 
 ### 18.2 About
 
-- Includes company vision, mission, goals, values, and who Mushavo serves.
+- Includes company vision, mission, goals, values, and who Mushavo Homes serves.
 - Must match actual functionality and avoid unsupported claims.
 
 ### 18.3 Pricing
@@ -607,7 +607,7 @@ Rules:
 - Language selection persists in `localStorage` under `mushavo_language`.
 - Translate all static and dynamically rendered UI text, including headings, labels, buttons, badges, empty states, dialogs, validation messages, table headings, and helper text.
 - Do not translate user-created data: names, emails, property names, notes, filenames, or free-text descriptions.
-- Do not translate the Mushavo brand.
+- Do not translate the Mushavo Homes brand.
 - Dynamic mixed labels such as Unit 24 and Paid/Unpaid need explicit formatting support.
 - A translation change must scan all public files and `client.html`, not only the reported screenshot.
 - Grammar must be natural in each language; do not use broken word-by-word substitutions.
@@ -641,8 +641,8 @@ Rules:
 ## 21. User-Facing Errors
 
 - Wrong email/password: `The email or password is incorrect.`
-- Existing account during signup: `Your account already exists. Please contact Mushavo Support.`
-- Missing/deleted profile after valid Auth login: `Your account does not exist or has been removed. Please contact Mushavo Support.`
+- Existing account during signup: `Your account already exists. Please contact Mushavo Homes Support.`
+- Missing/deleted profile after valid Auth login: `Your account does not exist or has been removed. Please contact Mushavo Homes Support.`
 - Do not show `Your session could not be verified` for ordinary wrong credentials.
 - Do not expose SQL function names, table names, policy names, constraints, SQLSTATE codes, or raw Supabase messages.
 - Translate known error categories into specific actions:
@@ -892,7 +892,7 @@ Do not restrict admin staff note assignees to only themselves. The assignee list
 
 ## 29. Historical Payment Records Rule
 
-Landlords, IPMs, and PMCs must be able to enter historical/backdated rent payments when onboarding an existing tenant or property into Mushavo. This is for verified records that already happened before the account started using the platform.
+Landlords, IPMs, and PMCs must be able to enter historical/backdated rent payments when onboarding an existing tenant or property into Mushavo Homes. This is for verified records that already happened before the account started using the platform.
 
 Historical payment entry belongs to manager-side payment logging only:
 
@@ -914,7 +914,7 @@ Updated balance rule: tenant `Current Balance` must show all outstanding rent du
 
 ## 30. Tenant-Landlord Request Lifecycle Rule
 
-An existing Mushavo tenant account must never become available to a landlord merely because the landlord searched for the tenant or sent a request. The relationship has a strict lifecycle:
+An existing Mushavo Homes tenant account must never become available to a landlord merely because the landlord searched for the tenant or sent a request. The relationship has a strict lifecycle:
 
 - `pending`: the landlord sent a request, but the tenant has not responded
 - `accepted`: the tenant explicitly accepted; only now may the landlord see the tenant in Accepted Tenants and assign the tenant to a unit
@@ -966,3 +966,431 @@ Required behavior:
 - if signup RPC signatures change, the full SQL file must include `drop function if exists` statements for old signatures before recreating the functions, and grants must be updated for the new signatures
 
 Before handoff, test landlord signup and tenant signup with a non-first country option, then confirm the created profile/account row keeps that country after refresh and in admin edit dialogs.
+
+## 33. Country And Market Display Rule
+
+Mushavo Homes can store a full world country list for public signup and country-code selection, but admin country cards must not show every country in the world by default.
+
+Required behavior:
+
+- Public landlord signup and tenant signup may show all world countries in the country dropdown.
+- Admin/admin staff country cards should show only actual Mushavo Homes markets: countries explicitly added/enabled by admin or countries that already have landlord/user activity.
+- Admin staff can only select and manage countries assigned to them.
+- Admin staff cannot add countries.
+- Add Country must use a controlled country dropdown sourced from the known country list, not a free-text country name, to avoid spelling/currency/code conflicts.
+- Adding a country must create or activate that country as a Mushavo Homes market so it appears in admin country cards and relevant admin filters.
+
+## 34. Public Signup Page Split Rule
+
+Direct account creation pages must be separated from `client.html`.
+
+Required behavior:
+
+- `client.html` remains the login/authenticated client area.
+- Direct free landlord signup belongs on its own page, such as `landlord-signup.html`.
+- Direct tenant signup belongs on its own page, such as `tenant-signup.html`.
+- Login page buttons link to those separate pages instead of rendering large signup forms inside `client.html`.
+- If a landlord searches for a tenant and the tenant does not exist, the generated invite/copy action must point to the tenant signup page only.
+- If an IPM or PMC searches for a landlord and the landlord does not exist, the generated invite/copy action must point to the free landlord signup page only.
+- Do not expose raw signup URLs as the main visible success text. Use user-friendly text such as `Free tenant signup link ready. Copy and send it to the tenant.` while keeping a Copy Link button available.
+
+## 35. Customer-Facing Wording Rule
+
+Customer-facing website messages must not reveal internal operational details.
+
+Examples:
+
+- Contact/enquiry success text should say `Enquiry submitted. The Mushavo Homes team will review it.`
+- Do not say the enquiry will be reviewed in the admin area.
+- Tenant/landlord invite messages should explain what the customer needs to do, not database/admin mechanics.
+- Supabase/RPC errors must be translated into clear product language where possible.
+
+## 36. Admin Pricing Control Rule
+
+Admin must have a Pricing page in the client area to control public pricing and default plan limits.
+
+Required behavior:
+
+- Admin pricing records drive what appears on the public `pricing.html` page.
+- Admin pricing records also drive the default limits shown when admin/admin staff creates or edits landlord, IPM, and PMC subscriptions.
+- Pricing records include country, account type, plan, monthly price, yearly price, public visibility, and all relevant limits.
+- Yearly public pricing should show one month free, not two months free.
+- Unit limits mean units per property where the product decision says that, especially for landlord pricing.
+- IPM limits include landlord count and property-per-landlord limits.
+- PMC limits include landlords, properties, units, and staff limits.
+- If a table heading has a sort arrow on the pricing page, sorting must work on the visible filtered rows.
+
+## 37. IPM/PMC Finance Naming And Scope Rule
+
+IPM and PMC finance must not be confused with a landlord's own finance page.
+
+Required behavior:
+
+- Landlord Finance is private to the landlord and must not be exposed to IPMs or PMCs through landlord permissions.
+- IPM/PMC `Payments` menu label should be `Landlord Payments` when it refers to payments collected from their connected landlords.
+- IPM/PMC `Finance` menu label should be `Personal Finance` when it refers to the IPM/PMC's own business revenue and records.
+- IPM/PMC personal finance should have a finance dashboard similar to admin finance, but scoped to connected landlords instead of countries.
+- IPM/PMC can record payments from landlords they serve, including amount, paid date, period from/to, payment type/plan where applicable, and history.
+- Dropping a landlord removes IPM/PMC access to that landlord's current data, but the landlord's own data and history must remain intact.
+
+## 38. Admin Notes Assignment Rule
+
+When creating or editing an assigned admin note:
+
+- If the creator selects `assign to staff`, the assignee dropdown must not show the creator's own name.
+- Admin staff must still be able to assign notes to the super admin/admin.
+- Super admin/admin can assign notes to admin staff.
+- RLS must still enforce who can view, edit, complete, and delete notes.
+
+## 39. Property Units Toggle Rule
+
+On property cards, the unit panel must be controlled by the property card button itself.
+
+Required behavior:
+
+- When units are closed, the property card button says `Open Units`.
+- When that property's units are open, the same button says `Close Units`.
+- The duplicate `Close Units` button beside the units panel Refresh button should not appear.
+- The expanded units panel must open directly under the selected property card, not at the bottom of the whole property list.
+
+## 40. Granular Refresh And Realtime Rule
+
+Realtime/callback updates should refresh only the affected data section and must preserve the current view state.
+
+Required behavior:
+
+- A landlord selector change in an IPM or PMC account must not trigger a global reload on unrelated landlord or tenant pages.
+- Data changes should update only the affected page section/component where possible.
+- Do not reset `currentPage`, selected tabs, open unit panels, selected landlord, filters, or scroll position during background refreshes.
+- Use section-level refresh functions instead of full app reloads for add/edit/delete/payment/notification updates.
+- Keep stable container sizes during refresh to avoid flicker or jumping.
+
+## 41. Mobile Header And Menu Rule
+
+All account shells must use the clean mobile header pattern that fits on phone screens.
+
+Required behavior:
+
+- Logo and role/account label fit without overlapping topbar controls.
+- On mobile, navigation goes behind a hamburger/menu button.
+- Notification bell remains visible on the main mobile header.
+- Logout should move into the mobile menu/drawer instead of crowding the main topbar.
+- Plan/status badges that do not fit on mobile should move into the mobile menu/drawer.
+- The phone layout must not horizontally scroll.
+
+## 42. Tenant Relationship Data Retention Rule
+
+Dropping or ending a tenant-landlord relationship must not delete historical records.
+
+Required behavior:
+
+- Marking a unit vacant ends the active lease/unit assignment but does not delete tenant profile, payments, receipts, lease history, or maintenance history.
+- Tenant can drop a landlord only after there is no active lease.
+- Dropping the landlord removes the landlord's active access to the tenant identity but keeps historical landlord records intact.
+- Accepted tenant relationships must remain visible until the lifecycle explicitly ends through vacancy/drop rules.
+
+## 43. Prompt And Rules Update Rule
+
+Do not update `rules.md` or `rentradar_next_chat_prompt.md` unless the owner explicitly asks for it.
+
+When the owner does ask for an update:
+
+- Update the canonical working branch and keep it synchronized with the verified GitHub repository.
+- Include the latest product decisions, regressions, and workflow rules since the last update.
+- Keep the rules practical and testable, not vague.
+- If a rule affects code and SQL, state that both the frontend and Supabase layer must enforce it.
+
+## 44. Canonical Local Source Rule
+
+The canonical source folder is:
+
+`C:\Users\HP\Desktop\Mushavo Homes`
+
+Required behavior:
+
+- Work from this folder unless the owner explicitly changes the source of truth.
+- Do not edit or push directly to `main`; use a focused feature, fix, or reconciliation branch.
+- Do not use old `ne\outputs` files as the source of truth unless the owner explicitly asks.
+- When SQL or HTML is changed, update the whole relevant local file, not loose snippets.
+
+## 45. Fresh Supabase Install Rule
+
+The schema must work on an empty Supabase project after the owner has deleted all tables, auth users, RLS policies, functions, triggers, and storage objects.
+
+Required behavior:
+
+- Tables must be created before triggers, policies, or functions that reference them.
+- Helper functions must exist before RLS policies or RPCs call them.
+- No policy or function may reference missing objects such as old helper names, removed tables, or stale columns.
+- If a function signature, parameter name, or return type changes, include `drop function if exists ...` before recreating it.
+- The super admin usage block is optional and should not be rerun if that auth user already exists.
+
+## 46. Country Visibility And Assignment Rule
+
+Countries are handled differently depending on context.
+
+Required behavior:
+
+- Public signups, tenant signup, landlord signup, contact forms, and country dropdowns may show all countries in the world.
+- Admin Landlord Management must not show every world country by default. It should show `All countries` plus countries that have landlords or have been intentionally added as active markets.
+- Add Country must use a dropdown from the world country list instead of free text.
+- Admin staff can be assigned one or more countries.
+- Admin staff can only register, edit, view, and manage country-related records inside their assigned countries.
+- Saved country dropdowns must reopen with the saved country selected, not `Unassigned` or the first option.
+
+## 47. Signup And Invite Page Rule
+
+Landlord and tenant account creation must be separated from the main login page.
+
+Required behavior:
+
+- Free landlord signup lives on its own page, such as `landlord-signup.html`.
+- Tenant signup lives on its own page, such as `tenant-signup.html`.
+- `client.html` should link to those pages instead of embedding the full signup flows.
+- If a landlord, IPM, or PMC invites a tenant who is not on Mushavo Homes, the generated link must point to the tenant signup page.
+- If an IPM or PMC invites a landlord who is not on Mushavo Homes, the generated link must point to the free landlord signup page.
+- Do not display raw invite URLs as the main success message. Use friendly text such as `Free tenant signup link ready. Copy and send it to the tenant.`
+
+## 48. Tenant Link Request Rule
+
+Tenant search and linking must preserve tenant consent.
+
+Required behavior:
+
+- If an existing tenant is found, send a request/notification only.
+- The tenant must accept before they appear in the accepted tenant list or assignable tenant dropdown.
+- Rejected requests should disappear from the landlord request list and must not create an accepted relationship.
+- After accepting, the notification should show accepted or be removed from pending actions, and the tenant Settings page should show the accepted landlord.
+- Landlords need a visible pending tenant requests list or page after sending requests.
+- Accept/reject buttons must call working handlers and persist the state in Supabase.
+- Dropping the tenant-landlord relationship must not delete landlord payment, lease, receipt, maintenance, or audit history.
+
+## 49. Subscription Status Rule
+
+Plan/status, expiry, suspension, and trial are separate concepts and must not be mixed.
+
+Required behavior:
+
+- Display combined labels as `Plan / Status`, for example `Starter - Active`, `Growth - Trial`, `Free - Active`.
+- Headings should say `Plan / Status` where the combined value is shown.
+- Trial is a valid account state and must not lock the user out.
+- Suspended accounts show the suspension screen.
+- Expired subscriptions show the subscription expired screen.
+- Expired status must be derived from expiry dates for landlords, IPMs, and PMCs in admin/admin staff lists.
+- Suspending an account must preserve the existing plan/status values so unsuspending restores the same plan/status.
+- New landlord direct signups and landlord invites from IPM/PMC default to `Free - Active`, 1 property, 1 unit, Finance page, 0 personal staff, 1 IPM/PMC connection, and no practical expiry.
+
+## 50. Payment And Finance Logic Rule
+
+Payment logic must match real accounting behavior.
+
+Required behavior:
+
+- Tenant current balance is rent balance only and should include outstanding rent from previous months.
+- Rent payments reduce rent balance.
+- Non-rent payments, maintenance payments, and `Other` payments must not reduce rent balance.
+- When payment purpose is `Other`, label the amount field as `Amount`, not `Rent amount`, and require a description.
+- Deposit appears in payment-purpose options when unpaid, but deposits do not count as revenue.
+- Payment history should support PDF receipt download wherever payments are listed.
+- Admin payment recording should choose from pricing plans and monthly/yearly options, auto-fill amount, and allow amount edits.
+- Admin staff must not edit or delete payment history or payment entries.
+
+## 51. Maintenance And Staff Assignment Rule
+
+Maintenance permissions and staff assignment must be strict.
+
+Required behavior:
+
+- A user without create-maintenance permission must not see or use maintenance creation controls.
+- A user without assign-maintenance permission must not see assignment dropdowns.
+- Assignment dropdowns must only show staff who are actually under or allowed for that landlord, PMC, IPM, property, or unit scope.
+- Resolution-note controls require the matching resolution permission.
+- Maintenance delete buttons should exist only where deletion is allowed.
+- Landlord and PMC/IPM unit detail views should show which staff person is assigned to the unit.
+
+## 52. Pricing Management Rule
+
+Admin controls public pricing and default subscription limits from the admin Pricing page.
+
+Required behavior:
+
+- Public pricing cards should read from the pricing plan data.
+- Admin Pricing edits should update public pricing display and default limits used when adding landlords, IPMs, and PMCs.
+- Pricing tables must not drop important columns to save space; use horizontal scrolling inside the table container if needed.
+- The yearly billing toggle should show `1 month free`.
+- IPM plans need a per-landlord property assignment limit, and that limit must be enforced when landlords assign properties to the IPM.
+
+## 53. Phase Delivery Rule
+
+When working through a product phase, finish the whole phase scope or clearly state what remains.
+
+Required behavior:
+
+- At phase completion, list the files/areas changed.
+- Give a testing checklist for the features added or changed.
+- Do not claim a phase is complete if listed phase items were skipped.
+- Keep phase work scoped and avoid spending time on unrelated cleanup unless it blocks the phase.
+
+## 54. Phase 6 CRM And Public Vacancy Rule
+
+Phase 6 is the public vacancy and internal leads flow.
+
+Required behavior:
+
+- Public available-unit listings show safe details only: country, city/area, property name or area, unit summary, rent, availability, and approved photos.
+- Exact addresses stay hidden publicly.
+- General contact enquiries remain separate from listing leads.
+- Listing leads, viewing requests, follow-ups, saved leads, lead activity, and conversion tracking are managed internally.
+- Lead conversion creates a tenant-link request first; it must not automatically create a lease.
+- Admin sees all listing leads; admin staff only sees assigned-country listing leads.
+- Landlord sees their own listing leads.
+- IPM/PMC sees listing leads only for assigned landlord/property scope.
+- Staff actions depend on permissions: `can_publish_listings`, `can_manage_leads`, and `can_schedule_viewings`.
+
+## 55. Phase 7 Permissions And Audit Rule
+
+Permissions and audit control are core product behavior, not optional UI polish.
+
+Required behavior:
+
+- Maintain one central permission matrix for landlord staff, PMC staff, IPM/PMC access, and any delegated user.
+- Parent permissions control child permissions. Example: a user cannot edit a unit unless they can view units; a user cannot archive a property unless they can view properties.
+- If permission is missing, hide the button, dropdown, field, or sensitive information entirely.
+- UI permission checks must match Supabase RLS/function checks. Never rely on the UI alone.
+- Log create, edit, delete, archive, approve, reject, export, and financial-record view actions in audit history.
+- Admin can see audit logs. Admin staff must not see the audit page.
+- Admin staff must not delete/archive landlords, IPMs, PMCs, or edit/delete payment history.
+
+## 56. Phase 8 Automation Rule
+
+Automation must create useful reminders without misleading the user during loading.
+
+Required behavior:
+
+- Automation covers rent due reminders, overdue rent alerts, lease expiry reminders, subscription expiry reminders, maintenance escalation, payment received notifications, and custom message templates.
+- Automation pages must show loading/skeleton states while data is being fetched. Do not briefly show `0` or `No records found` before the real data arrives.
+- Automation status messages are page-scoped and must disappear when the user navigates to another page.
+- Email integration is a later layer. Keep notification records and templates ready for email, but do not expose API keys in client HTML.
+
+## 57. Page-Scoped Feedback Rule
+
+Success, error, and status messages must belong only to the page/action that created them.
+
+Required behavior:
+
+- Clear transient feedback when `currentPage` changes.
+- Do not carry messages such as `Automation checks completed` onto unrelated pages.
+- Keep modal/dialog state separate from page feedback so confirmations and QR dialogs are not accidentally cleared mid-action.
+- Use user-friendly error messages. Do not show raw Supabase errors for limit checks, signup checks, permission checks, or subscription checks.
+
+## 58. Mobile Header And Menu Rule
+
+Every account type must use the same clean mobile header pattern that works on admin/admin staff.
+
+Required behavior:
+
+- On mobile, show logo, account label/name, notification bell where applicable, language selector, and hamburger menu without overlap.
+- Logout belongs inside the mobile menu/drawer.
+- Plan/status badges that do not fit in the mobile header must move into the menu/drawer.
+- Admin and admin staff must use a menu/drawer because the full menu no longer fits horizontally.
+- Menu order for admin/admin staff: Dashboard, Notes, Landlords, IPM, PMC, Staff, Tenants, Finance, Enquiries, Pricing, Leads, Automation, Audit.
+- Skip unavailable pages for admin staff. Audit is admin-only.
+
+## 59. Signup And Invite Link Rule
+
+Signup and invite flows must use the correct public pages and clear customer-facing language.
+
+Required behavior:
+
+- Free landlord signup and tenant signup are separate pages from `client.html`.
+- After successful landlord signup, redirect the user to the login/client page.
+- If IPM/PMC invites a landlord who is not on Mushavo Homes, provide the free landlord signup page link only.
+- If a landlord invites a tenant who is not on Mushavo Homes, provide the tenant signup page link only.
+- Do not display raw generated links as success messages. Use messages such as `Free tenant signup link ready. Copy and send it to the tenant.`
+- If QR codes are generated for links, they must point to the same temporary invite/signup URL and inherit the same expiry/safety behavior.
+
+## 60. Tenant Relationship Rule
+
+Existing tenants must always consent before they become assignable to a landlord.
+
+Required behavior:
+
+- Searching an existing tenant sends a request only.
+- The tenant must accept before appearing in Accepted Tenants.
+- Rejection removes the pending request.
+- Landlord pages must show pending tenant requests separately from accepted tenants.
+- Tenant Settings must list accepted landlords and show Drop Landlord only when the tenant has no active lease/unit relationship with that landlord.
+- Dropping a tenant-landlord relationship must not delete historical leases, payments, receipts, maintenance, or financial records.
+
+## 61. Form And Panel Density Rule
+
+Large create/edit forms should not permanently consume page space.
+
+Required behavior:
+
+- Add forms on operational pages should be collapsed by default behind an Add button.
+- After successful submit, collapse the form again.
+- Applies to properties, tenants, leases, maintenance, notes, and equivalent landlord staff/IPM/PMC/PMC staff pages.
+- Property unit panels open directly below the selected property card.
+- When a property's units are open, the property card button changes to `Close Units`; do not show a second close button beside Refresh.
+
+## 62. Dialog Responsiveness Rule
+
+All dialogs must work on small screens.
+
+Required behavior:
+
+- Dialogs need max-height and internal scrolling.
+- The X button, Cancel button, and Save/Submit button must always be reachable.
+- Dropdowns must reopen with the saved value selected, not the first/default option.
+- If a select value saves to the database, the edit modal must hydrate from the saved value on reopen.
+
+## 63. Countries Rule
+
+Country handling must be consistent across admin, signup, and staff-scoped actions.
+
+Required behavior:
+
+- Admin country cards show only countries with landlords/active markets, plus `All countries`.
+- Landlord signup and tenant signup country selectors show all world countries.
+- Add Country should use a dropdown from the world country list to avoid spelling/code/currency conflicts.
+- Admin staff can only select and manage assigned countries.
+- One admin staff member can be assigned to multiple countries.
+
+## 64. Finance And Balance Rule
+
+Payments must affect the correct financial area.
+
+Required behavior:
+
+- Tenant current balance is rent-only and includes outstanding historical rent.
+- Non-rent payments such as maintenance or `Other` do not reduce rent balance.
+- `Other` payment type requires a description and the amount label should be `Amount`, not `Rent amount`.
+- Deposit can appear as a payment option when unpaid, but deposits are refundable and must not count as revenue.
+- IPM/PMC `Landlord Payments` are payments received from connected landlords.
+- IPM/PMC `Personal Finance` is the IPM/PMC business finance dashboard, separate from landlord rent finance.
+
+## 65. Admin Staff Suspension Rule
+
+Suspended admin staff must get a clear suspension state.
+
+Required behavior:
+
+- If admin suspends an admin staff account, login should show a suspension message such as `Your account is suspended. Please contact the admin.`
+- Do not show `This account role is not supported` for suspended staff.
+- Suspended status pauses access but should not delete the staff profile or country assignments.
+
+## 66. Working File Rule
+
+Use the local project as the source of truth unless the user explicitly changes it.
+
+Required behavior:
+
+- Work locally in `C:\Users\HP\Desktop\Mushavo Homes`.
+- Do not edit or push directly to `main`; use a focused feature or fix branch.
+- When asked for HTML or SQL changes, update the full local file rather than giving isolated snippets.
+- Update this rules file and the next-chat prompt only when the user explicitly asks.
+
+## Current Local File Rule
+
+The active Mushavo Homes workspace is `C:\Users\HP\Desktop\Mushavo Homes`. All future edits, checks, and file references must use this folder unless the user explicitly gives a different path. Do not use older local copies for implementation work; compare with the latest GitHub `main` before branching.

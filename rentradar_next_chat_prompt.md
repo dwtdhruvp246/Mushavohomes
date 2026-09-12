@@ -1,10 +1,156 @@
-# Mushavo Continuation Prompt For Next Chat
+# Mushavo Homes Continuation Prompt For Next Chat
 
-Act as an expert full-stack software engineer, product architect, and senior technical consultant. We are building **Mushavo**, a multi-tenant property management SaaS for landlords, tenants, staff, and property/estate management companies.  you must use logical sense and see if the actions taken or something that is created is logically connected and correct. 
+## Current Override - August 9, 2026
+
+Use this section as the current source of truth if older notes below conflict with it.
+
+Canonical local project folder:
+
+`C:\Users\HP\Desktop\Mushavo Homes`
+
+Work from this folder using a focused Git branch created from the latest GitHub `main`. Do not edit `main` directly. Do not use old `ne\outputs` files as the source of truth unless the owner explicitly asks. Do not update `rules.md` or this prompt unless the owner explicitly asks.
+
+Important files:
+
+- `client.html` - client area app for admin, admin staff, landlords, tenants, IPMs, PMCs, landlord staff, and PMC staff.
+- `index.html`, `about.html`, `pricing.html`, `contact.html`, `available-units.html` - public website pages.
+- `landlord-signup.html` - free landlord signup page.
+- `tenant-signup.html` - tenant signup page.
+- `i18n.js` - shared translation dictionary/helpers.
+- `rentradar_loop1_schema.sql` - full Supabase schema/RLS/RPC/storage setup.
+- `rules.md` - product and engineering rules that must be followed.
+
+The app is now a static multi-page HTML app, not a single-file app. It still uses Tailwind CDN, Alpine.js CDN, Supabase JS SDK CDN, jsPDF CDN, Inter font, Supabase PostgreSQL/Auth/Storage/RLS/Realtime, and static hosting.
+
+Primary rule: before changing code, read `rules.md`. If the owner reports a bug, search all role paths affected by that bug, not only the visible page.
+
+## Current Product Terminology
+
+- IPM means `Individual Portfolio Manager`.
+- PMC means `Property Management Company`.
+- Do not use old labels like freelancer manager or company management in visible UI.
+- IPM/PMC menu labels should distinguish landlord-related payments from their own finance:
+  - `Landlords Payments`
+  - `Personal Finance`
+- Landlord finance is private to the landlord and must not be exposed to IPM/PMC as if it is their finance page.
+
+## Current Account Roles
+
+- Admin: full platform owner access.
+- Admin staff: platform staff restricted by assigned countries; cannot edit or delete finance/payment history entries.
+- Landlord: owns properties, units, leases, tenants, staff, payments, maintenance, listings, and finance.
+- Tenant: self-created account; accepts/rejects landlord link requests; submits payments and maintenance; can drop landlord only after no active lease remains.
+- IPM: individual manager who connects to landlords and manages only assigned scope.
+- PMC: property management company with leader and internal staff.
+- Landlord staff: staff invited by a landlord and serving only that landlord.
+- PMC staff: staff invited by a PMC and serving only that PMC.
+
+## Current Subscription Rules
+
+- Use combined `Plan / Status` labels, for example `Free - Active`, `Starter - Trial`, `Growth - Active`, `Pro - Active`.
+- Trial is valid and must not be treated as suspended.
+- Suspended and expired are separate lockout states.
+- Suspended users get the suspension page.
+- Expired users get the subscription expired page.
+- Unsuspend must preserve the user's existing plan/status.
+- Expiry status must be derived from expiry dates in admin/admin staff landlord, IPM, and PMC lists.
+- New landlord direct signup or landlord invite by IPM/PMC defaults to `Free - Active`, 1 property, 1 unit, Finance page, 0 personal staff, 1 IPM/PMC connection, and no practical expiry.
+
+## Current Country Rules
+
+- All countries may appear in public signup/contact dropdowns.
+- Admin Landlord Management should not show every world country by default. It should show `All countries` plus countries with landlords or intentionally added active markets.
+- Add Country should use a dropdown from the world-country list, not free text.
+- Admin staff may be assigned multiple countries and must be restricted to those countries for country-related work.
+- Edit dialogs must reopen showing the saved country, not `Unassigned` or the first option.
+
+## Current Tenant Lifecycle Rules
+
+- Tenant signup is separate from login and lives on `tenant-signup.html`.
+- Free landlord signup lives on `landlord-signup.html`.
+- If a tenant does not exist, landlord/IPM/PMC invite flow should provide the tenant signup page link and friendly message: `Free tenant signup link ready. Copy and send it to the tenant.`
+- If a landlord does not exist, IPM/PMC invite flow should provide the free landlord signup page link.
+- If an existing tenant is found, send only a tenant-link request/notification.
+- A tenant must accept before appearing in accepted tenant lists or assignable tenant dropdowns.
+- Rejected tenant requests disappear and do not create accepted relationships.
+- Landlord pages need a pending tenant requests list or page.
+- Tenant Settings must show accepted landlords and allow dropping only after no active lease remains.
+- Dropping a tenant-landlord relationship must not delete payment, lease, receipt, maintenance, or audit history.
+
+## Current Payment And Finance Rules
+
+- Tenant current balance is rent balance only and should include outstanding rent from previous months.
+- Rent payments reduce rent balance.
+- Non-rent, maintenance, and `Other` payments do not reduce rent balance.
+- If payment purpose is `Other`, show `Amount` instead of `Rent amount`, and require a description.
+- Deposit should appear as a payment purpose when unpaid, but deposits are not revenue.
+- Wherever payments are shown, provide receipt/PDF download where applicable.
+- Admin payment recording should use pricing-plan dropdowns with monthly/yearly options, auto-fill the amount, and keep the amount editable.
+- Admin staff cannot edit or delete payment history or payment entries.
+
+## Current UI And State Rules
+
+- All account types must use the phone-friendly admin/admin-staff mobile header pattern.
+- Mobile navigation uses a hamburger/menu drawer.
+- Notification bell must remain visible on mobile.
+- Logout moves into the mobile menu/drawer.
+- Plan/status badges that do not fit move into the mobile menu/drawer.
+- No page-wide horizontal scrolling on phones.
+- Dialogs must be scrollable on small screens and always show close/cancel/save actions.
+- Forms that take space should be collapsed behind Add buttons until needed.
+- Property `Open Units` toggles to `Close Units`, and the expanded unit section opens directly under that property card.
+- Avoid full-page reloads after add/edit/delete/payment/notification updates. Use granular section refreshes and preserve page, filters, selected tabs, selected landlord, open panels, and scroll position.
+- Use stable containers/skeletons so data refreshes do not make the page jump.
+- Sort buttons must sort by the clicked column only; no hidden primary sort should override the user's selected sort.
+
+## Current Permission Rules
+
+- Permissions must hide both actions and sensitive information when not granted.
+- Domino dependencies apply. Example: edit-property controls cannot appear if view-property is not available.
+- Maintenance create, assign, resolution, delete, and staff dropdown controls must only appear when the matching permission exists.
+- Assignment dropdowns must only show staff actually inside the allowed landlord/IPM/PMC/property/unit scope.
+- IPM per-landlord property limits must be enforced when assigning properties.
+
+## Current Phase Rules
+
+Completed or in-progress product phases:
+
+1. Phase 1: Trust And Finance Core
+2. Phase 2: Owner / Landlord Statements
+3. Phase 3: Maintenance Workflow
+4. Phase 4: Leasing And Tenant Lifecycle
+5. Phase 5: Inspections
+6. Phase 6: CRM And Public Vacancy Flow
+
+Whenever a phase is completed:
+
+- List the files/areas changed.
+- Provide a feature testing checklist.
+- Do not claim completion if any listed phase item was skipped.
+
+Phase 6 current scope:
+
+- Public available units/listings.
+- Safe public listing details only, with exact address hidden.
+- Internal Leads page for landlord, IPM, PMC, and permitted staff.
+- Admin/admin staff oversight with admin staff country restrictions.
+- Separate listing leads from general contact enquiries.
+- Lead conversion creates a tenant-link request first, not an automatic lease.
+
+## Current Supabase Rules
+
+- `rentradar_loop1_schema.sql` must be runnable on a fresh empty Supabase project after everything has been deleted.
+- Create tables before triggers, policies, or functions that reference them.
+- Create helper functions before policies/RPCs that call them.
+- Do not leave references to missing helper functions, old tables, or stale columns.
+- If a function signature, return type, or parameter name changes, include `drop function if exists ...` before recreating it.
+- Never put service-role/private secrets in frontend files. Supabase URL and anon key are public by design; RLS and RPC security are the real protection.
+
+Act as an expert full-stack software engineer, product architect, and senior technical consultant. We are building **Mushavo Homes**, a multi-tenant property management SaaS for landlords, tenants, staff, and property/estate management companies.  you must use logical sense and see if the actions taken or something that is created is logically connected and correct.
 
 Branding:
 
-- Product name: **Mushavo**
+- Product name: **Mushavo Homes**
 - Tagline: **Your property, handled simply.**
 - Logo file expected beside `index.html`: `mushavo-logo.png`
 - Do not reintroduce the old RentRadar/Musha branding unless the user explicitly asks.
@@ -15,7 +161,7 @@ This is a continuation of an existing build. **Do not restart from scratch.** Co
 - `outputs/rentradar_loop1_schema.sql`
 - `outputs/rentradar_next_chat_prompt.md`
 
-Create a new file called Mushavo and save all the files there.
+Create a new file called Mushavo Homes and save all the files there.
 
 The app is a **single-file static HTML app** using:
 
@@ -272,7 +418,7 @@ Built:
 Built:
 
 - Super Admin shell/top nav
-- `Mushavo Admin` branding
+- `Mushavo Homes Admin` branding
 - logout
 - Landlord Management page
 - stats: Total Landlords, Active, Trial, Suspended
@@ -307,7 +453,7 @@ Built:
 
 Extra changes preserved:
 
-- Removed duplicate topbar Mushavo branding.
+- Removed duplicate topbar Mushavo Homes branding.
 - Sidebar/mobile nav keeps branding.
 - Landlord profile/name chip on right opens landlord `My Account`.
 - `My Account` is landlord-only.
@@ -458,7 +604,7 @@ Reviewed and fixed:
 User reported that switching browser tabs or returning to the site could reload the app and leave it stuck on:
 
 ```text
-Loading Mushavo...
+Loading Mushavo Homes...
 ```
 
 Fixes applied:
@@ -533,7 +679,7 @@ Staff cannot see:
    - separate from Settings
 
 2. **Topbar branding**
-   - do not re-add duplicate topbar Mushavo branding in landlord/staff shell
+   - do not re-add duplicate topbar Mushavo Homes branding in landlord/staff shell
    - sidebar/mobile nav keeps branding
 
 3. **Visible labels**
@@ -548,7 +694,7 @@ Staff cannot see:
    - do not add public table select on `invite_tokens`
 
 6. **Reload behavior**
-   - returning to the app must not leave permanent `Loading Mushavo...`
+   - returning to the app must not leave permanent `Loading Mushavo Homes...`
    - restored users should return to their last valid page
    - Refresh buttons must reload current page data, not route back to Dashboard/Home
 
@@ -662,7 +808,7 @@ The interface has been refreshed with a cleaner Apple-style glass UI:
 The app could still show the permanent boot screen after returning to the website:
 
 ```text
-Loading Mushavo...
+Loading Mushavo Homes...
 ```
 
 The current file has been patched to avoid this by timing out startup calls and rendering the restored shell before page data refreshes. The next chat should verify manually with the user if possible and continue debugging only if the issue remains.
@@ -677,7 +823,7 @@ The visible product terminology has moved to:
 
 Latest implementation notes:
 
-- The expired subscription lockout screen now says: “Your Mushavo subscription has expired, and your account access is currently paused. Your data is still safely stored. Please contact support to renew your subscription and restore access.”
+- The expired subscription lockout screen now says: “Your Mushavo Homes subscription has expired, and your account access is currently paused. Your data is still safely stored. Please contact support to renew your subscription and restore access.”
 - Expired/suspended subscription access now routes to the paused-access shell for landlords, IPMs, PMCs, landlord staff, and PMC staff instead of showing misleading missing-profile or waiting-approval errors.
 - Admin PMC list now has Edit and Suspend actions. Edit reuses the PMC modal and can update company name, leader name, leader email, phone, country, limits, status, and expiry.
 - PMC account Tenants page no longer shows the tenant ID column.
@@ -694,7 +840,7 @@ Latest implementation notes:
 
 ## Latest Admin Staff Patch
 
-The platform admin now has a separate **Staff** page for Mushavo's own internal admin staff. This is distinct from:
+The platform admin now has a separate **Staff** page for Mushavo Homes' own internal admin staff. This is distinct from:
 
 - **IPM** accounts (`role = 'staff'`, `staff_type = 'freelancer'`)
 - landlord staff
@@ -714,14 +860,14 @@ Implementation notes:
 
 ## Latest Public Website Split
 
-The Mushavo public website has now been split away from the logged-in client app.
+The Mushavo Homes public website has now been split away from the logged-in client app.
 
 
-- `index.html` - new public home page for Mushavo
+- `index.html` - new public home page for Mushavo Homes
 - `about.html` - public About page with vision, mission, goals, and values
 - `pricing.html` - public Pricing page with country-based pricing for Zimbabwe and Malaysia
 - `contact.html` - public Contact page with support/sales sections and a visual enquiry form placeholder
-- `client.html` - preserved copy of the original full Mushavo login/dashboard app
+- `client.html` - preserved copy of the original full Mushavo Homes login/dashboard app
 - `mushavo-logo.png` - shared public/app logo asset
 
 Important behavior:
@@ -749,7 +895,7 @@ Pricing page details:
 Contact page details:
 
 - The contact page does not currently submit data anywhere.
-- The enquiry form is intentionally a placeholder until the official Mushavo email address or backend email service is confirmed.
+- The enquiry form is intentionally a placeholder until the official Mushavo Homes email address or backend email service is confirmed.
 - Do not wire the form to a personal email address unless the user explicitly approves that destination.
 
 Implementation caution for future chats:
@@ -868,11 +1014,11 @@ Deployment reminder:
 
 ## Tenant Global Account Reuse Flow
 
-Tenant logins must be global Mushavo identities, not permanently owned by one landlord.
+Tenant logins must be global Mushavo Homes identities, not permanently owned by one landlord.
 
 Rules implemented:
 
-- `profiles.email` stays globally unique, so one tenant email has one Mushavo login.
+- `profiles.email` stays globally unique, so one tenant email has one Mushavo Homes login.
 - `tenants` rows are landlord-specific relationship records.
 - The same tenant can be invited by another landlord later, using the same email/login.
 - When a landlord archives/deletes a tenant relationship:
@@ -916,7 +1062,7 @@ Rules implemented:
 - IPM and PMC accounts do not have a free signup path. They remain invite/admin-created accounts.
 - IPMs and PMCs now have a Landlords page by default.
 - IPM/PMC landlord discovery uses landlord email only:
-  - If the landlord email exists, show that the landlord is on Mushavo and allow an access request.
+  - If the landlord email exists, show that the landlord is on Mushavo Homes and allow an access request.
   - If the landlord email does not exist, create an invite link for that landlord to join on the free landlord plan.
 - When a landlord accepts an IPM/PMC-generated invite, the landlord account is created on the free plan and a pending access request is created for the IPM or PMC. The landlord still approves permissions before access is granted.
 - Pricing page now shows:
@@ -950,7 +1096,7 @@ SQL changes:
 - Property limit is enforced through property insert RLS using `landlord_can_add_property(...)`.
 - Personal staff invite limit is enforced through invite token RLS.
 - Frontend must pre-check subscription limits before attempting Supabase writes. This is especially important for the free landlord plan where `personal_staff_limit = 0`; do not use `||` fallbacks that turn zero into a paid-plan default.
-- Never show raw Supabase/RLS/constraint messages to end users for plan-limit failures. Convert them to clean Mushavo messages such as "Your current plan does not include personal staff members..." or "Personal staff limit reached...".
+- Never show raw Supabase/RLS/constraint messages to end users for plan-limit failures. Convert them to clean Mushavo Homes messages such as "Your current plan does not include personal staff members..." or "Personal staff limit reached...".
 - IPM/PMC partner approval is enforced inside approval RPCs.
 - Added RPCs:
   - `register_free_landlord(text, text)`
@@ -1000,7 +1146,7 @@ Current important files:
 - `about.html` - public about page
 - `pricing.html` - public pricing page
 - `contact.html` - public contact/enquiry page
-- `client.html` - logged-in Mushavo client area
+- `client.html` - logged-in Mushavo Homes client area
 - `i18n.js` - shared language/translation script loaded by all public pages and `client.html`
 - `rentradar_loop1_schema.sql` - Supabase schema/RLS/RPC setup
 - `mushavo-logo.png` - shared logo
@@ -1016,7 +1162,7 @@ Important current file relationship:
 
 ### Translation / Language System
 
-Mushavo now has a shared translation layer for:
+Mushavo Homes now has a shared translation layer for:
 
 - English
 - Bahasa Melayu
@@ -1047,7 +1193,7 @@ Future translation guidance:
 
 - If the user shows a screenshot with untranslated text, add the exact English source text to `i18n.js` for both `ms` and `zh`.
 - Prefer adding exact keys rather than changing app logic.
-- Do not translate brand names like Mushavo.
+- Do not translate brand names like Mushavo Homes.
 - Do not translate dynamic/user-created content unless the user specifically requests machine translation.
 
 ### Public Contact Page And Enquiries
@@ -1057,7 +1203,7 @@ The public `contact.html` no longer uses only a `mailto:` flow.
 Current behavior:
 
 - The enquiry form submits to Supabase table `enquiries`.
-- Country selection exists so Mushavo can see which country the enquiry came from, including countries where Mushavo does not yet operate.
+- Country selection exists so Mushavo Homes can see which country the enquiry came from, including countries where Mushavo Homes does not yet operate.
 - `client.html` includes an Admin `Enquiries` page.
 - Super admin can review all enquiries.
 - Admin staff should only see enquiries scoped to their assigned country.
@@ -1075,7 +1221,7 @@ If the enquiry form fails:
 For all paid-account types, expired subscriptions should show a clear paused-access message:
 
 ```text
-Your Mushavo subscription has expired, and your account access is currently paused. Your data is still safely stored.
+Your Mushavo Homes subscription has expired, and your account access is currently paused. Your data is still safely stored.
 
 Please contact support to renew your subscription and restore access.
 ```
@@ -1096,7 +1242,7 @@ Use these user-facing terms:
 - **PMC** = Property Management Company
 - **Landlord staff** = staff created by one landlord and only serving that landlord
 - **PMC staff** = staff created by a PMC and only serving that PMC
-- **Admin staff** = Mushavo internal staff assigned by super admin to a country
+- **Admin staff** = Mushavo Homes internal staff assigned by super admin to a country
 
 Do not use "freelancer" or "management company" in user-facing UI unless the user explicitly asks. The database may still contain legacy/internal terms.
 
@@ -1123,7 +1269,7 @@ This logic must apply to:
 
 ### Tenant Account Reuse And Search Flow
 
-Tenant accounts are global Mushavo identities. Landlords/IPMs/PMCs should not create duplicate Auth users for the same tenant email.
+Tenant accounts are global Mushavo Homes identities. Landlords/IPMs/PMCs should not create duplicate Auth users for the same tenant email.
 
 Desired UI flow:
 
@@ -1201,11 +1347,11 @@ Tenant Unit Details should also show assigned contact information when the prope
 
 ### Public Website Content Direction
 
-The public home page should explain Mushavo more transparently than a simple hero section.
+The public home page should explain Mushavo Homes more transparently than a simple hero section.
 
 Keep the public pages clear about:
 
-- what Mushavo is
+- what Mushavo Homes is
 - who benefits
 - landlords
 - tenants
@@ -1387,3 +1533,229 @@ Direct landlord signup and direct tenant signup must require country. New accoun
 - Save country to `tenants.country_id` for tenant direct signup.
 - Country dropdowns must store stable country IDs and follow the dropdown state sync rule.
 - If signup RPC signatures change, update the full SQL file with `drop function if exists` cleanup for old signatures before the new functions and update grants for the new signatures.
+
+### Latest Product Rules To Preserve
+
+Work from the local project folder unless the owner explicitly says otherwise:
+
+```text
+C:\Users\HP\Desktop\Mushavo Homes
+```
+
+Do not use the GitHub repo as the source of truth unless the owner asks for it.
+
+Country handling:
+
+- Public landlord signup and tenant signup can show all world countries.
+- Admin country cards must not show every world country by default.
+- Admin country cards should show only enabled Mushavo Homes markets or countries that already have activity.
+- Admin Add Country should use a controlled country dropdown from the world country list, not free text.
+- Admin staff can only select/manage countries assigned to them and cannot add countries.
+
+Signup page split:
+
+- `client.html` is login/authenticated client area only.
+- Direct free landlord signup belongs on its own page such as `landlord-signup.html`.
+- Direct tenant signup belongs on its own page such as `tenant-signup.html`.
+- If a tenant is missing, landlord invite/copy action must point to the tenant signup page.
+- If a landlord is missing, IPM/PMC invite/copy action must point to the free landlord signup page.
+- Do not show raw signup URLs as the main success message. Use text like `Free tenant signup link ready. Copy and send it to the tenant.` and provide a Copy Link button.
+
+Customer-facing wording:
+
+- Contact success text must say `Enquiry submitted. The Mushavo Homes team will review it.`
+- Do not mention the admin area to customers.
+- Convert raw Supabase/RPC messages into clean product messages wherever possible.
+
+Admin pricing:
+
+- Admin has a Pricing page controlling public pricing and default subscription limits.
+- Pricing records drive public `pricing.html` and default plan limits for landlord, IPM, and PMC creation/subscription dialogs.
+- Yearly billing gives one month free.
+- Landlord unit limits are units per property where applicable.
+- IPM limits include landlord count and property-per-landlord limits.
+- PMC limits include landlords, properties, units, and staff.
+
+IPM/PMC finance:
+
+- Landlord Finance is private to the landlord and must not be exposed to IPM/PMC by permission.
+- IPM/PMC menu label `Payments` should become `Landlord Payments` when it records payments from connected landlords.
+- IPM/PMC menu label `Finance` should become `Personal Finance` for the IPM/PMC business finance dashboard.
+- IPM/PMC personal finance is like admin finance but scoped to connected landlords, not countries.
+
+Admin notes:
+
+- If an admin/admin staff user creates a note and chooses `assign to staff`, the assignee dropdown must not include the current creator.
+- Admin staff must still be able to assign notes to the super admin/admin.
+
+Property units UI:
+
+- Property card button controls the unit panel.
+- Closed state: `Open Units`.
+- Open state for that property: `Close Units`.
+- Do not also show a duplicate `Close Units` button beside Refresh in the expanded units panel.
+- Expanded units appear directly below the selected property card.
+
+Realtime/granular refresh:
+
+- Avoid full-page reloads after add/edit/delete/payment/notification changes.
+- Refresh only the affected section/component where possible.
+- Preserve current page, selected tab, selected landlord, filters, open unit panel, and scroll position.
+- Keep stable containers/skeletons so pages do not jump during background refreshes.
+
+Mobile shell:
+
+- All account types must use a phone-friendly header/menu pattern.
+- Navigation goes behind a hamburger menu on mobile.
+- Notification bell stays visible on the mobile main header.
+- Logout goes inside the mobile menu/drawer.
+- Plan/status badges that do not fit move into the mobile menu/drawer.
+- No page-wide horizontal scrolling on phones.
+
+Tenant relationship lifecycle:
+
+- Sending a tenant request never makes the tenant assignable.
+- Only tenant acceptance moves the tenant into Accepted Tenants.
+- Rejection removes the request without creating an accepted relationship.
+- Tenant Settings lists accepted landlords and supports dropping a landlord only after no active lease remains.
+- Dropping a landlord/tenant relationship must not delete historical leases, payments, receipts, maintenance, or landlord records.
+
+Recent continuation notes:
+
+- Source of truth: the canonical folder synchronized with the latest GitHub `main`, with all changes made on a focused branch.
+- Update `rules.md` and this prompt file only when the user explicitly asks.
+- When SQL or HTML changes are needed, update the full local file, not a partial snippet.
+
+Page feedback and loading:
+
+- Success/error/status messages must be page-scoped.
+- When `currentPage` changes, clear transient page feedback so messages from one page do not appear on another page.
+- Keep confirmation dialogs and QR dialogs separate from transient page feedback.
+- Loading pages must not flash false `0` values or `No records found` before data finishes loading. Use loading/skeleton states and stable container heights.
+- Avoid full-page reloads. Refresh only the affected component/section while preserving current page, tab, filters, selected landlord, open unit panel, and scroll position.
+
+Mobile layout:
+
+- All accounts should use the same clean mobile header pattern that worked well for admin/admin staff.
+- On mobile, show logo, account label/name, notification bell where applicable, language selector, and hamburger menu without overlap.
+- Logout should be inside the mobile menu/drawer.
+- Plan/status badges that do not fit in the mobile header should move into the menu/drawer.
+- Admin/admin staff should use a menu/drawer because the full horizontal menu does not fit.
+- Admin/admin staff menu order: Dashboard, Notes, Landlords, IPM, PMC, Staff, Tenants, Finance, Enquiries, Pricing, Leads, Automation, Audit. Skip pages not available to admin staff. Audit is admin-only.
+
+Admin and admin staff:
+
+- Admin dashboard should summarize landlords, finance, enquiries, IPM, PMC, and notes.
+- Admin staff can manage operational items only within assigned country scope.
+- One admin staff member can be assigned to multiple countries.
+- Admin staff must not see Audit.
+- Admin staff must not delete/archive landlords, IPMs, PMCs, or edit/delete payment history.
+- If admin suspends an admin staff account, login should show a clear suspension message: `Your account is suspended. Please contact the admin.`
+- Do not show `This account role is not supported` for suspended staff.
+
+Notes:
+
+- Admin/admin staff Notes page should keep the New Note form collapsed by default.
+- Show the form after clicking Add Note.
+- After adding a note, collapse the form again.
+- If assigning a note to staff, do not show the current creator in the assignee list.
+- Admin staff can assign notes to the admin.
+
+Countries:
+
+- Admin country cards should not list every world country by default.
+- Admin country cards show `All countries` plus countries that have landlords/active market data.
+- Landlord signup and tenant signup country selectors should show all world countries.
+- Add Country should use a dropdown from the world country list instead of free typing country name/code/currency.
+- Admin staff can only select countries assigned to them for country-related actions.
+
+Signup and invite links:
+
+- Free landlord signup and tenant signup are separate pages from `client.html`.
+- After successful landlord signup, redirect to the login/client page.
+- If IPM/PMC invites a landlord not on Mushavo Homes, the generated/copy link should go to the free landlord signup page only.
+- If landlord invites a tenant not on Mushavo Homes, the generated/copy link should go to the tenant signup page only.
+- Do not display raw signup URLs as success text. Use friendly messages such as `Free tenant signup link ready. Copy and send it to the tenant.`
+- Contact form success text must not mention `admin area`; use `Enquiry submitted. The Mushavo Homes team will review it.`
+- If QR codes are generated for links, they should point to the same temporary invite/signup link and inherit its expiry/safety behavior.
+
+Subscription and status:
+
+- Use combined `Plan / Status` labels such as `Active - Free`, `Starter - Active`, `Growth - Trial`, etc.
+- Trial must not be treated as suspended.
+- Suspended and expired are separate states: suspended shows a suspension page; expired shows a subscription expired page.
+- When admin suspends landlord/IPM/PMC, keep the plan/status intact and allow Unsuspend to restore access.
+- Active-Free accounts should show `Unlimited` or `-` for expiry/days remaining, including admin/admin staff tables and My Account pages.
+
+Forms, panels, and dialogs:
+
+- Large add forms should be collapsed by default behind Add buttons.
+- After successful add, collapse the form again.
+- Applies to properties, tenants, leases, maintenance, notes, and equivalent landlord staff/IPM/PMC/PMC staff pages.
+- Unit panels should open directly below the selected property card.
+- When a property unit panel is open, change the card button from `Open Units` to `Close Units`; remove the duplicate Close Units button beside Refresh.
+- All dialogs need max-height and internal scrolling so X, Cancel, and Save/Submit are reachable on smaller screens.
+- Dropdowns in edit dialogs must hydrate with the saved value, not reset to the first/default option.
+- Sort arrows on tables must sort by the clicked column without hidden primary sorting overriding the result.
+
+Tenant relationship lifecycle:
+
+- Existing tenants are found by email/phone but cannot be assigned automatically.
+- Searching an existing tenant sends a request only.
+- Landlord/IPM/PMC pages must show pending tenant requests separately.
+- Accepted Tenants should include a tenant only after tenant acceptance.
+- Rejection removes the pending request.
+- Tenant Settings should list accepted landlords and show Drop Landlord only when no active lease/unit relationship remains.
+- Dropping a tenant-landlord relationship must not delete historical leases, payments, receipts, maintenance, or financial records.
+
+Payments and finance:
+
+- Tenant current balance is rent-only and should include historical outstanding rent.
+- Non-rent payments such as maintenance or Other must not reduce rent balance.
+- Payment type `Other` requires a description and should label the amount field as `Amount`, not `Rent amount`.
+- Deposit should appear as a payment option when unpaid, but deposits are refundable and must not count as revenue.
+- IPM/PMC menu label `Payments` should be `Landlord Payments`.
+- IPM/PMC menu label `Finance` should be `Personal Finance`.
+- IPM/PMC personal finance is their business finance dashboard, separate from landlord rent finance.
+
+Maintenance and assigned staff:
+
+- Maintenance requests need a delete option where allowed.
+- Staff assignment dropdowns must only show staff actually under or assigned to the relevant landlord/PMC/IPM scope.
+- If assignment permission is missing, hide the assignment dropdown.
+- Maintenance permissions should be clear: create/log maintenance, assign, update status/resolution, and view.
+- Landlord and PMC/IPM unit detail views should show which staff member is assigned to the unit.
+
+Phase delivery:
+
+- Completed phases so far include Phase 1 Trust and Finance Core, Phase 2 Owner/Landlord Statements, Phase 3 Maintenance Workflow, Phase 4 Leasing and Tenant Lifecycle, Phase 5 Inspections, Phase 6 CRM and Public Vacancy Flow, Phase 7 Permissions and Audit Control, and Phase 8 Automation.
+- Whenever a phase is completed, provide where changes were made and a testing checklist.
+- Do not claim a phase is complete if any listed phase item was skipped.
+
+Phase 7 permissions and audit:
+
+- Use one central permission matrix.
+- Parent-child permission rules are mandatory. Example: cannot edit unit unless can view unit.
+- Hide every button, dropdown, field, and sensitive data block when permission is missing.
+- Supabase RLS/functions must enforce the same permission rules as the UI.
+- Audit log create/edit/delete/archive/approve/reject/export/view financial record actions.
+- Staff action history matters.
+
+Phase 8 automation:
+
+- Automation includes rent due reminders, overdue rent alerts, lease expiry reminders, subscription expiry reminders, maintenance escalation, payment received notifications, and custom message templates.
+- Email integration comes later, but keep templates and notification records ready.
+- Never expose email provider or AI provider API keys in client HTML.
+
+AI lease writer:
+
+- Lease page may include a button: `Let AI help you write your lease agreement`.
+- The client must call a server/Cloudflare Worker proxy, not the AI provider directly.
+- API keys must be stored as server-side secrets/environment variables and must never appear in `client.html`.
+- Provider may change, so keep endpoint/key configurable in the Worker/backend layer.
+
+## Current Working Folder
+
+Continue Mushavo Homes work from `C:\Users\HP\Desktop\Mushavo Homes`.
+
+Use `client.html` for the client area, standalone public/signup pages for public flows, and `rentradar_loop1_schema.sql` for Supabase schema/RLS/RPC/storage/realtime. Treat the database as fresh when the user says Supabase was reset.
