@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Create Free Landlord Account | Mushavo</title>
-  <meta name="description" content="Create a free Mushavo landlord account.">
+  <title>Create Free Landlord Account | Mushavo Homes</title>
+  <meta name="description" content="Create a free Mushavo Homes landlord account.">
   <link rel="icon" type="image/png" href="mushavo-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@
     <section class="w-full max-w-2xl rounded-3xl border border-white/70 bg-white/70 p-6 shadow-soft backdrop-blur-2xl sm:p-8">
       <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <img class="brand-logo mb-5 h-36 w-auto sm:h-44" src="mushavo-logo.png" alt="Mushavo logo">
+          <img class="brand-logo mb-5 h-36 w-auto sm:h-44" src="mushavo-logo.png" alt="Mushavo Homes logo">
           <p class="text-xs font-bold uppercase tracking-[0.28em] text-emerald-700">Free Landlord Account</p>
           <h1 class="mt-3 text-3xl font-extrabold tracking-normal text-slate-950 sm:text-4xl">Create your landlord account.</h1>
           <p class="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">Start on the free plan with 1 property, 1 unit, Finance page access, 0 personal staff, and 1 IPM or PMC connection.</p>
@@ -122,9 +122,9 @@
 
     function friendlyDatabaseError(error, fallback) {
       const message = error?.message || '';
-      if (/row-level security|violates row-level security/i.test(message)) return 'This action is blocked by database permissions. Please contact Mushavo support.';
-      if (/duplicate|already exists|unique/i.test(message)) return 'Your account already exists. Please contact Mushavo support.';
-      if (/limit|quota/i.test(message)) return 'This account has reached its current plan limit. Please contact Mushavo support.';
+      if (/row-level security|violates row-level security/i.test(message)) return 'This action is blocked by database permissions. Please contact Mushavo Homes support.';
+      if (/duplicate|already exists|unique/i.test(message)) return 'Your account already exists. Please contact Mushavo Homes support.';
+      if (/limit|quota/i.test(message)) return 'This account has reached its current plan limit. Please contact Mushavo Homes support.';
       return fallback;
     }
 
@@ -172,11 +172,11 @@
           });
 
           if (error) {
-            return { available: false, message: 'Mushavo could not safely check whether this account already exists. Please contact Mushavo support.' };
+            return { available: false, message: 'Mushavo Homes could not safely check whether this account already exists. Please contact Mushavo Homes support.' };
           }
 
           if (data === true) {
-            return { available: false, message: 'Your account already exists. Please contact Mushavo support.' };
+            return { available: false, message: 'Your account already exists. Please contact Mushavo Homes support.' };
           }
 
           return { available: true, message: '' };
@@ -226,7 +226,7 @@
 
           if (error) {
             this.authError = /already registered|already exists|user exists/i.test(error.message || '')
-              ? 'Your account already exists. Please contact Mushavo support.'
+              ? 'Your account already exists. Please contact Mushavo Homes support.'
               : error.message;
             this.authLoading = false;
             return;
@@ -246,7 +246,7 @@
           });
 
           if (registerError) {
-            this.authError = friendlyDatabaseError(registerError, 'Your free landlord account could not be created. Please contact Mushavo support.');
+            this.authError = friendlyDatabaseError(registerError, 'Your free landlord account could not be created. Please contact Mushavo Homes support.');
             this.authLoading = false;
             return;
           }
