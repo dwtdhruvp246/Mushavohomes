@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#047857">
+  <title>PWA Diagnostics | Mushavo Homes</title>
+  <link rel="icon" href="/icons/pwa-192.png">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+      background: #ecfdf5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 0;
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(45, 212, 191, 0.18), transparent 36rem),
+        linear-gradient(135deg, #ecfdf5 0%, #f8fafc 68%, #ecfeff 100%);
+    }
+
+    button, a { font: inherit; }
+
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin-inline: auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-block: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+    }
+
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: 16px; }
+    .brand span { color: #64748b; font-size: 13px; }
+
+    .back-link {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      color: #334155;
+      background: rgba(255, 255, 255, 0.82);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    main { padding: 12px 0 40px; }
+
+    .intro, .panel {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(16px);
+    }
+
+    .intro { padding: clamp(20px, 4vw, 34px); }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #047857;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.08;
+    }
+
+    .intro-copy {
+      max-width: 680px;
+      margin: 12px 0 0;
+      color: #64748b;
+      line-height: 1.65;
+    }
+
+    #diagnosticMessage {
+      min-height: 22px;
+      margin: 14px 0 0;
+      color: #047857;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .status-card {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .status-card span {
+      display: block;
+      margin-bottom: 7px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .status-card strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: clamp(16px, 3vw, 20px);
+      line-height: 1.3;
+    }
+
+    .panel {
+      margin-top: 16px;
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 4px;
+      font-size: 19px;
+    }
+
+    .panel p {
+      margin: 0;
+      color: #64748b;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .actions button {
+      min-height: 44px;
+      padding: 10px 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #334155;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .actions button:first-child {
+      border-color: #047857;
+      background: #047857;
+      color: #ffffff;
+    }
+
+    .actions button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    @media (max-width: 520px) {
+      header { align-items: flex-start; }
+      .back-link { padding: 9px 11px; font-size: 13px; }
+      .status-grid { grid-template-columns: 1fr; }
+      .actions { display: grid; }
+      .actions button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <div class="brand">
+      <img src="/icons/pwa-192.png" alt="">
+      <div>
+        <strong>Mushavo Homes</strong>
+        <span>PWA developer tool</span>
+      </div>
+    </div>
+    <a class="back-link" href="/client?source=pwa">Client area</a>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">PWA diagnostics</p>
+      <h1>Mushavo PWA Status</h1>
+      <p class="intro-copy">Use this screen to check installation, service-worker, cache, connectivity, and notification readiness without exposing account information.</p>
+      <p id="diagnosticMessage" role="status" aria-live="polite">Checking the app status...</p>
+    </section>
+
+    <section class="status-grid" aria-label="PWA status">
+      <article class="status-card"><span>App version</span><strong id="appVersion">1.0.0</strong></article>
+      <article class="status-card"><span>Running standalone</span><strong id="standaloneStatus">Checking...</strong></article>
+      <article class="status-card"><span>Manifest detected</span><strong id="manifestStatus">Checking...</strong></article>
+      <article class="status-card"><span>Manifest start URL</span><strong id="manifestStartUrl">Checking...</strong></article>
+      <article class="status-card"><span>Service worker</span><strong id="workerStatus">Checking...</strong></article>
+      <article class="status-card"><span>Cache version</span><strong id="cacheVersion">Checking...</strong></article>
+      <article class="status-card"><span>Online</span><strong id="onlineStatus">Checking...</strong></article>
+      <article class="status-card"><span>Notification permission</span><strong id="notificationStatus">Checking...</strong></article>
+      <article class="status-card"><span>Push subscription</span><strong id="pushStatus">Checking...</strong></article>
+      <article class="status-card"><span>Latest app build</span><strong id="latestBuild">Checking...</strong></article>
+    </section>
+
+    <section class="panel">
+      <h2>Diagnostic actions</h2>
+      <p>These actions affect only the PWA shell. They do not clear login sessions, user data, or Supabase records.</p>
+      <div class="actions">
+        <button id="checkUpdateButton" type="button">Check for update</button>
+        <button id="refreshButton" type="button">Refresh app</button>
+        <button id="resetCacheButton" type="button">Reset PWA cache</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const CACHE_PREFIX = 'mushavo-pwa-';
+      const ids = [
+        'standaloneStatus', 'manifestStatus', 'manifestStartUrl', 'workerStatus',
+        'cacheVersion', 'onlineStatus', 'notificationStatus', 'pushStatus', 'latestBuild'
+      ];
+      const output = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+      const message = document.getElementById('diagnosticMessage');
+      const updateButton = document.getElementById('checkUpdateButton');
+      const refreshButton = document.getElementById('refreshButton');
+      const resetButton = document.getElementById('resetCacheButton');
+
+      const setMessage = (text, isError = false) => {
+        message.textContent = text;
+        message.style.color = isError ? '#b91c1c' : '#047857';
+      };
+
+      const setBusy = (busy) => {
+        updateButton.disabled = busy;
+        resetButton.disabled = busy;
+      };
+
+      const getRegistration = async () => {
+        if (!('serviceWorker' in navigator)) return null;
+        return navigator.serviceWorker.getRegistration('/');
+      };
+
+      const requestWorker = (worker, type) => new Promise((resolve) => {
+        if (!worker || !('MessageChannel' in window)) {
+          resolve(null);
+          return;
+        }
+
+        const channel = new MessageChannel();
+        const timeout = window.setTimeout(() => resolve(null), 4000);
+        channel.port1.onmessage = (event) => {
+          window.clearTimeout(timeout);
+          resolve(event.data || null);
+        };
+        worker.postMessage({ type }, [channel.port2]);
+      });
+
+      const readLatestBuild = async () => {
+        try {
+          const response = await fetch(`/sw.js?diagnostics=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) return 'Unavailable';
+          const source = await response.text();
+          return source.match(/const BUILD_VERSION = '([^']+)'/)?.[1] || 'Unknown';
+        } catch (error) {
+          return 'Unavailable while offline';
+        }
+      };
+
+      const refreshDiagnostics = async () => {
+        output.standaloneStatus.textContent = window.matchMedia('(display-mode: standalone)').matches
+          || window.navigator.standalone === true ? 'Yes' : 'No';
+        output.onlineStatus.textContent = navigator.onLine ? 'Yes' : 'No';
+        output.notificationStatus.textContent = 'Notification' in window
+          ? Notification.permission[0].toUpperCase() + Notification.permission.slice(1)
+          : 'Unsupported';
+
+        try {
+          const response = await fetch('/manifest.webmanifest', { cache: 'no-store' });
+          const manifest = response.ok ? await response.json() : null;
+          output.manifestStatus.textContent = manifest ? 'Yes' : 'No';
+          output.manifestStartUrl.textContent = manifest?.start_url || 'Unavailable';
+        } catch (error) {
+          output.manifestStatus.textContent = 'Unavailable';
+          output.manifestStartUrl.textContent = 'Unavailable while offline';
+        }
+
+        const registration = await getRegistration();
+        output.workerStatus.textContent = registration?.waiting
+          ? 'Waiting'
+          : registration?.active ? 'Active' : registration?.installing ? 'Installing' : 'Missing';
+
+        const worker = registration?.active || navigator.serviceWorker?.controller || null;
+        const workerInfo = await requestWorker(worker, 'MUSHAVO_PWA_STATUS');
+        output.cacheVersion.textContent = workerInfo?.cacheName || 'Unavailable';
+
+        if (registration?.pushManager) {
+          try {
+            output.pushStatus.textContent = await registration.pushManager.getSubscription()
+              ? 'Active' : 'Missing';
+          } catch (error) {
+            output.pushStatus.textContent = 'Unavailable';
+          }
+        } else {
+          output.pushStatus.textContent = 'Unsupported';
+        }
+
+        output.latestBuild.textContent = await readLatestBuild();
+        setMessage('PWA status check complete.');
+      };
+
+      updateButton.addEventListener('click', async () => {
+        setBusy(true);
+        setMessage('Checking for a newer app build...');
+        try {
+          let registration = await getRegistration();
+          if (!registration) {
+            registration = await navigator.serviceWorker.register('/sw.js', {
+              scope: '/', updateViaCache: 'none'
+            });
+          }
+          await registration.update();
+          await refreshDiagnostics();
+          setMessage(registration.waiting ? 'An update is waiting to activate.' : 'Update check complete.');
+        } catch (error) {
+          setMessage('The update check could not be completed.', true);
+        } finally {
+          setBusy(false);
+        }
+      });
+
+      refreshButton.addEventListener('click', () => window.location.reload());
+
+      resetButton.addEventListener('click', async () => {
+        if (!navigator.onLine) {
+          setMessage('Reconnect before resetting the PWA cache.', true);
+          return;
+        }
+        if (!window.confirm('Refresh the Mushavo Homes PWA cache? Login sessions and account data will not be removed.')) return;
+
+        setBusy(true);
+        setMessage('Refreshing the PWA cache...');
+        try {
+          const registration = await getRegistration();
+          const worker = registration?.active || navigator.serviceWorker?.controller || null;
+          const result = await requestWorker(worker, 'MUSHAVO_RESET_CACHE');
+
+          if (!result?.ok) throw new Error('Cache refresh failed.');
+          await refreshDiagnostics();
+          setMessage('PWA cache refreshed successfully.');
+        } catch (error) {
+          setMessage('The PWA cache could not be refreshed.', true);
+        } finally {
+          setBusy(false);
+        }
+      });
+
+      window.addEventListener('online', refreshDiagnostics);
+      window.addEventListener('offline', refreshDiagnostics);
+      refreshDiagnostics().catch(() => setMessage('Some PWA diagnostics could not be loaded.', true));
+    })();
+  </script>
+</body>
+</html>

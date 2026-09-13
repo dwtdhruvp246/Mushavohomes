@@ -63,6 +63,35 @@ async function getOfflineResponse() {
   });
 }
 
+async function refreshShellCache() {
+  const refreshedAssets = await Promise.all(
+    PRECACHE_ASSETS.map(async (assetPath) => {
+      const request = new Request(new URL(assetPath, self.location.origin).href, {
+        cache: 'reload'
+      });
+      const response = await fetch(request);
+
+      if (!response.ok) {
+        throw new Error(`Could not refresh ${assetPath}.`);
+      }
+
+      return [request, response];
+    })
+  );
+  const keys = await caches.keys();
+
+  await Promise.all(
+    keys
+      .filter((key) => key.startsWith(CACHE_PREFIX))
+      .map((key) => caches.delete(key))
+  );
+
+  const shellCache = await caches.open(SHELL_CACHE);
+  await Promise.all(
+    refreshedAssets.map(([request, response]) => shellCache.put(request, response))
+  );
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
@@ -81,6 +110,27 @@ self.addEventListener('activate', (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener('message', (event) => {
+  const reply = (payload) => event.ports[0]?.postMessage(payload);
+
+  if (event.data?.type === 'MUSHAVO_PWA_STATUS') {
+    reply({
+      ok: true,
+      buildVersion: BUILD_VERSION,
+      cacheName: SHELL_CACHE
+    });
+    return;
+  }
+
+  if (event.data?.type === 'MUSHAVO_RESET_CACHE') {
+    event.waitUntil(
+      refreshShellCache()
+        .then(() => reply({ ok: true, cacheName: SHELL_CACHE }))
+        .catch(() => reply({ ok: false }))
+    );
+  }
 });
 
 self.addEventListener('fetch', (event) => {

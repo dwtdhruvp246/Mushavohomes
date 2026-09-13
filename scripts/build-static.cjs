@@ -13,6 +13,7 @@ const publicFiles = [
   "client.html",
   "landlord-signup.html",
   "tenant-signup.html",
+  "pwa-diagnostics.html",
   "i18n.js",
   "mushavo-logo.png",
   "manifest.webmanifest",
