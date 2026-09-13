@@ -15,6 +15,12 @@ const publicFiles = [
   "tenant-signup.html",
   "i18n.js",
   "mushavo-logo.png",
+  "manifest.webmanifest",
+  "icons/pwa-192.png",
+  "icons/pwa-512.png",
+  "icons/pwa-maskable-192.png",
+  "icons/pwa-maskable-512.png",
+  "icons/apple-touch-icon.png",
 ];
 
 fs.rmSync(outputDirectory, { recursive: true, force: true });
@@ -27,7 +33,9 @@ for (const relativePath of publicFiles) {
     throw new Error(`Required public file is missing: ${relativePath}`);
   }
 
-  fs.copyFileSync(sourcePath, path.join(outputDirectory, relativePath));
+  const destinationPath = path.join(outputDirectory, relativePath);
+  fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+  fs.copyFileSync(sourcePath, destinationPath);
 }
 
 console.log(`Prepared ${publicFiles.length} public files in dist/.`);
