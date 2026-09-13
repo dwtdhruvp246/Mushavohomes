@@ -25,6 +25,8 @@ Mushavo is currently a static multi-page HTML application backed by Supabase.
 | Client area | `client.html` | Main authenticated app for admin, admin staff, landlords, tenants, IPM, PMC, and staff |
 | Landlord signup | `landlord-signup.html` | Free landlord self-signup |
 | Tenant signup | `tenant-signup.html` | Tenant self-signup |
+| PWA runtime | `manifest.webmanifest`, `pwa-register.js`, `sw.js`, `offline.html` | Installation, updates, service worker, and offline shell |
+| PWA diagnostics | `pwa-diagnostics.html` | Developer status and safe PWA cache/update controls; available by direct URL |
 | Translations | `i18n.js` | English, Bahasa Melayu, Chinese translation dictionary/helpers |
 | Database | `rentradar_loop1_schema.sql` | Supabase schema, RLS, RPC, storage, realtime |
 | AI lease proxy | `ai-lease-worker.js` | Cloudflare Worker style AI API proxy |
