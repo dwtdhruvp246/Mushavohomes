@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'mushavo-pwa-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v2`;
-const OFFLINE_URL = '/offline.html';
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v3`;
+const OFFLINE_URL = '/offline';
 
 const EMERGENCY_OFFLINE_HTML = `<!doctype html>
 <html lang="en">
@@ -54,7 +54,7 @@ async function getOfflineResponse() {
   }
 
   return new Response(EMERGENCY_OFFLINE_HTML, {
-    status: 503,
+    status: 200,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-store'
