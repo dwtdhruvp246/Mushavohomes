@@ -1,13 +1,21 @@
 (() => {
   if (!('serviceWorker' in navigator)) return;
 
+  const UPDATE_NOTICE_KEY = 'mushavo-pwa-update-complete';
   const hadController = Boolean(navigator.serviceWorker.controller);
   let isRefreshing = false;
 
-  const showVersionBNotice = () => {
+  const showUpdateNotice = () => {
+    try {
+      if (window.sessionStorage.getItem(UPDATE_NOTICE_KEY) !== 'true') return;
+      window.sessionStorage.removeItem(UPDATE_NOTICE_KEY);
+    } catch (error) {
+      return;
+    }
+
     const notice = document.createElement('div');
     notice.setAttribute('role', 'status');
-    notice.textContent = 'Mushavo Homes update test: Version B loaded.';
+    notice.textContent = 'Mushavo Homes updated automatically.';
     Object.assign(notice.style, {
       position: 'fixed',
       right: '16px',
@@ -29,11 +37,16 @@
     if (!hadController || isRefreshing) return;
 
     isRefreshing = true;
+    try {
+      window.sessionStorage.setItem(UPDATE_NOTICE_KEY, 'true');
+    } catch (error) {
+      // The update still completes if session storage is unavailable.
+    }
     window.location.reload();
   });
 
   window.addEventListener('load', () => {
-    showVersionBNotice();
+    showUpdateNotice();
 
     navigator.serviceWorker.register('/sw.js', {
       scope: '/',
