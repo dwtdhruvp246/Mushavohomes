@@ -41,4 +41,25 @@ for (const relativePath of publicFiles) {
   fs.copyFileSync(sourcePath, destinationPath);
 }
 
-console.log(`Prepared ${publicFiles.length} public files in dist/.`);
+const serviceWorkerPath = path.join(outputDirectory, "sw.js");
+const serviceWorkerMarker = "__MUSHAVO_BUILD_VERSION__";
+const deploymentVersion = (
+  process.env.CF_PAGES_COMMIT_SHA ||
+  process.env.GITHUB_SHA ||
+  process.env.CF_DEPLOYMENT_ID ||
+  new Date().toISOString()
+).replace(/[^a-zA-Z0-9._-]/g, "-");
+const serviceWorkerSource = fs.readFileSync(serviceWorkerPath, "utf8");
+
+if (!serviceWorkerSource.includes(serviceWorkerMarker)) {
+  throw new Error("Service worker build-version marker is missing.");
+}
+
+fs.writeFileSync(
+  serviceWorkerPath,
+  serviceWorkerSource.replaceAll(serviceWorkerMarker, deploymentVersion)
+);
+
+console.log(
+  `Prepared ${publicFiles.length} public files in dist/ for ${deploymentVersion}.`
+);

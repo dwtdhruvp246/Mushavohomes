@@ -1,5 +1,6 @@
 const CACHE_PREFIX = 'mushavo-pwa-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v3`;
+const BUILD_VERSION = '__MUSHAVO_BUILD_VERSION__';
+const SHELL_CACHE = `${CACHE_PREFIX}shell-${BUILD_VERSION}`;
 const OFFLINE_URL = '/offline';
 
 const EMERGENCY_OFFLINE_HTML = `<!doctype html>
@@ -64,7 +65,9 @@ async function getOfflineResponse() {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(SHELL_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
+    caches.open(SHELL_CACHE)
+      .then((cache) => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
