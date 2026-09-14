@@ -5905,6 +5905,8 @@
                     </template>
                   </section>
 
+                  <div x-init="$nextTick(() => window.MushavoPwaNotifications?.mount($el))"></div>
+
                   <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
                     <div class="divide-y divide-slate-200">
                       <template x-if="!notifications.loading && notifications.items.length === 0">
@@ -6472,6 +6474,7 @@
                 </div>
                 <template x-if="notifications.error"><div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" x-text="notifications.error"></div></template>
               </section>
+              <div x-init="$nextTick(() => window.MushavoPwaNotifications?.mount($el))"></div>
               <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
                 <div class="divide-y divide-slate-200">
                   <template x-if="notifications.items.length === 0"><p class="px-5 py-10 text-center text-sm text-slate-500">No notifications yet.</p></template>
