@@ -1,8 +1,7 @@
 (() => {
-  if (!('serviceWorker' in navigator)) return;
-
   const UPDATE_NOTICE_KEY = 'mushavo-pwa-update-complete';
-  const hadController = Boolean(navigator.serviceWorker.controller);
+  const supportsServiceWorker = Boolean(navigator.serviceWorker);
+  const hadController = Boolean(navigator.serviceWorker?.controller);
   const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
   const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
@@ -10,6 +9,151 @@
   let isRefreshing = false;
   let deferredInstallPrompt = null;
   let installBanner = null;
+
+  const notificationPermissionState = () => {
+    if (isIos && !isStandalone) {
+      return {
+        buttonLabel: 'Install app first',
+        disabled: true,
+        status: 'On iPhone or iPad, add Mushavo Homes to your Home Screen before enabling notifications.'
+      };
+    }
+
+    if (!('Notification' in window) || !('PushManager' in window) || !supportsServiceWorker) {
+      return {
+        buttonLabel: 'Not supported',
+        disabled: true,
+        status: 'This browser does not support Mushavo Homes push notifications.'
+      };
+    }
+
+    if (!window.isSecureContext) {
+      return {
+        buttonLabel: 'Secure connection required',
+        disabled: true,
+        status: 'Notifications are available only through the secure Mushavo Homes website.'
+      };
+    }
+
+    if (Notification.permission === 'granted') {
+      return {
+        buttonLabel: 'Notifications enabled',
+        disabled: true,
+        status: 'Notifications are enabled on this device.'
+      };
+    }
+
+    if (Notification.permission === 'denied') {
+      return {
+        buttonLabel: 'Notifications blocked',
+        disabled: true,
+        status: 'Notifications are blocked in this browser. You can enable them later in the site settings.'
+      };
+    }
+
+    return {
+      buttonLabel: 'Enable notifications',
+      disabled: false,
+      status: 'Choose Enable notifications when you are ready. Mushavo Homes will then ask for browser permission.'
+    };
+  };
+
+  const syncNotificationPermissionUi = (root = document) => {
+    const state = notificationPermissionState();
+    const selector = '[data-mushavo-notification-permission]';
+    const panels = [
+      ...(root.matches?.(selector) ? [root] : []),
+      ...(root.querySelectorAll?.(selector) || [])
+    ];
+    panels.forEach((panel) => {
+      const button = panel.querySelector('[data-mushavo-enable-notifications]');
+      const status = panel.querySelector('[data-mushavo-notification-status]');
+      if (button) {
+        button.textContent = state.buttonLabel;
+        button.disabled = state.disabled;
+      }
+      if (status) status.textContent = state.status;
+    });
+    return state;
+  };
+
+  const continueToPushSubscription = () => {
+    document.dispatchEvent(new CustomEvent('mushavo:pwa-notification-permission-granted'));
+  };
+
+  const requestNotificationPermission = async (panel) => {
+    if (!('Notification' in window)) {
+      syncNotificationPermissionUi(panel || document);
+      return 'unsupported';
+    }
+
+    const beforeRequest = notificationPermissionState();
+    if (beforeRequest.disabled) {
+      syncNotificationPermissionUi(panel || document);
+      if (Notification.permission === 'granted') continueToPushSubscription();
+      return Notification.permission;
+    }
+
+    const button = panel?.querySelector('[data-mushavo-enable-notifications]');
+    const status = panel?.querySelector('[data-mushavo-notification-status]');
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Waiting for permission...';
+    }
+    if (status) status.textContent = 'Use the browser prompt to allow or block notifications.';
+
+    try {
+      const permission = await Notification.requestPermission();
+      syncNotificationPermissionUi(document);
+      if (permission === 'granted') continueToPushSubscription();
+      return permission;
+    } catch (error) {
+      if (status) status.textContent = 'The permission request could not be completed. The rest of Mushavo Homes is still available.';
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Try again';
+      }
+      return 'error';
+    }
+  };
+
+  const mountNotificationPermission = (host) => {
+    if (!host || host.dataset.mushavoNotificationMounted === 'true') return;
+    host.dataset.mushavoNotificationMounted = 'true';
+    host.setAttribute('data-mushavo-notification-permission', '');
+
+    host.innerHTML = `
+      <section class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 shadow-soft sm:p-5" aria-labelledby="mushavo-push-title">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="min-w-0">
+            <h2 id="mushavo-push-title" class="text-base font-bold text-slate-900">Stay updated with Mushavo Homes</h2>
+            <p class="mt-1 text-sm leading-6 text-slate-600">Receive important updates on this device, even when the app is not open.</p>
+            <ul class="mt-3 grid gap-x-5 gap-y-1 text-sm font-medium text-slate-700 sm:grid-cols-2">
+              <li>✓ Payment reminders</li>
+              <li>✓ Payment confirmations</li>
+              <li>✓ Maintenance updates</li>
+              <li>✓ Lease reminders</li>
+            </ul>
+          </div>
+          <div class="shrink-0 lg:max-w-xs">
+            <button data-mushavo-enable-notifications type="button" class="min-h-11 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-default disabled:bg-slate-300 disabled:text-slate-600 lg:w-auto">Enable notifications</button>
+            <p data-mushavo-notification-status class="mt-2 max-w-sm text-xs leading-5 text-slate-600" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>`;
+
+    host.querySelector('[data-mushavo-enable-notifications]')?.addEventListener(
+      'click',
+      () => requestNotificationPermission(host)
+    );
+    syncNotificationPermissionUi(host);
+  };
+
+  window.MushavoPwaNotifications = {
+    mount: mountNotificationPermission,
+    requestPermission: requestNotificationPermission,
+    sync: syncNotificationPermissionUi
+  };
 
   const removeInstallBanner = () => {
     installBanner?.remove();
@@ -151,17 +295,19 @@
     window.setTimeout(() => notice.remove(), 8000);
   };
 
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hadController || isRefreshing) return;
+  if (supportsServiceWorker) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || isRefreshing) return;
 
-    isRefreshing = true;
-    try {
-      window.sessionStorage.setItem(UPDATE_NOTICE_KEY, 'true');
-    } catch (error) {
-      // The update still completes if session storage is unavailable.
-    }
-    window.location.reload();
-  });
+      isRefreshing = true;
+      try {
+        window.sessionStorage.setItem(UPDATE_NOTICE_KEY, 'true');
+      } catch (error) {
+        // The update still completes if session storage is unavailable.
+      }
+      window.location.reload();
+    });
+  }
 
   window.addEventListener('beforeinstallprompt', (event) => {
     if (isStandalone) return;
@@ -183,13 +329,17 @@
       showInstallBanner('ios');
     }
 
-    navigator.serviceWorker.register('/sw.js', {
-      scope: '/',
-      updateViaCache: 'none'
-    })
-      .then((registration) => registration.update())
-      .catch((error) => {
-        console.error('Mushavo Homes service worker registration failed.', error);
-      });
+    syncNotificationPermissionUi();
+
+    if (supportsServiceWorker) {
+      navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      })
+        .then((registration) => registration.update())
+        .catch((error) => {
+          console.error('Mushavo Homes service worker registration failed.', error);
+        });
+    }
   }, { once: true });
 })();
