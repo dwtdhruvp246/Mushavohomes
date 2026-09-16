@@ -2047,6 +2047,37 @@ create index if not exists notifications_profile_id_idx on public.notifications 
 create index if not exists notifications_landlord_id_idx on public.notifications (landlord_id);
 create index if not exists notifications_related_idx on public.notifications (type, related_id);
 
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh_key text not null,
+  auth_key text not null,
+  device_label text,
+  browser_name text,
+  platform text,
+  user_agent text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  last_used_at timestamptz,
+  constraint push_subscriptions_endpoint_not_blank check (length(trim(endpoint)) > 0),
+  constraint push_subscriptions_endpoint_length check (length(endpoint) <= 2048),
+  constraint push_subscriptions_p256dh_not_blank check (length(trim(p256dh_key)) > 0),
+  constraint push_subscriptions_p256dh_length check (length(p256dh_key) <= 512),
+  constraint push_subscriptions_auth_not_blank check (length(trim(auth_key)) > 0),
+  constraint push_subscriptions_auth_length check (length(auth_key) <= 256),
+  constraint push_subscriptions_device_label_length check (device_label is null or length(device_label) <= 120),
+  constraint push_subscriptions_browser_name_length check (browser_name is null or length(browser_name) <= 80),
+  constraint push_subscriptions_platform_length check (platform is null or length(platform) <= 80),
+  constraint push_subscriptions_user_agent_length check (user_agent is null or length(user_agent) <= 1024)
+);
+
+create index if not exists push_subscriptions_user_id_idx
+  on public.push_subscriptions (user_id, updated_at desc);
+create index if not exists push_subscriptions_last_used_idx
+  on public.push_subscriptions (last_used_at desc)
+  where last_used_at is not null;
+
 create table if not exists public.tenant_applications (
   id uuid primary key default gen_random_uuid(),
   landlord_id uuid not null references public.profiles(id) on delete cascade,
@@ -2257,6 +2288,118 @@ begin
 end;
 $$;
 
+create or replace function public.upsert_push_subscription(
+  p_endpoint text,
+  p_p256dh_key text,
+  p_auth_key text,
+  p_device_label text default null,
+  p_browser_name text default null,
+  p_platform text default null,
+  p_user_agent text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_user_id uuid := auth.uid();
+  subscription_id uuid;
+  normalized_endpoint text := trim(coalesce(p_endpoint, ''));
+begin
+  if current_user_id is null then
+    raise exception 'You must be signed in to enable push notifications.';
+  end if;
+
+  if normalized_endpoint = '' or normalized_endpoint !~ '^https://' or length(normalized_endpoint) > 2048 then
+    raise exception 'The push subscription endpoint is invalid.';
+  end if;
+
+  if nullif(trim(coalesce(p_p256dh_key, '')), '') is null
+     or nullif(trim(coalesce(p_auth_key, '')), '') is null then
+    raise exception 'The push subscription keys are incomplete.';
+  end if;
+
+  if length(p_p256dh_key) > 512 or length(p_auth_key) > 256 then
+    raise exception 'The push subscription keys are invalid.';
+  end if;
+
+  if length(coalesce(p_device_label, '')) > 120
+     or length(coalesce(p_browser_name, '')) > 80
+     or length(coalesce(p_platform, '')) > 80
+     or length(coalesce(p_user_agent, '')) > 1024 then
+    raise exception 'The push subscription device information is too long.';
+  end if;
+
+  insert into public.push_subscriptions (
+    user_id,
+    endpoint,
+    p256dh_key,
+    auth_key,
+    device_label,
+    browser_name,
+    platform,
+    user_agent,
+    last_used_at
+  )
+  values (
+    current_user_id,
+    normalized_endpoint,
+    trim(p_p256dh_key),
+    trim(p_auth_key),
+    nullif(trim(coalesce(p_device_label, '')), ''),
+    nullif(trim(coalesce(p_browser_name, '')), ''),
+    nullif(trim(coalesce(p_platform, '')), ''),
+    nullif(trim(coalesce(p_user_agent, '')), ''),
+    now()
+  )
+  on conflict (endpoint) do update
+  set user_id = excluded.user_id,
+      p256dh_key = excluded.p256dh_key,
+      auth_key = excluded.auth_key,
+      device_label = excluded.device_label,
+      browser_name = excluded.browser_name,
+      platform = excluded.platform,
+      user_agent = excluded.user_agent,
+      updated_at = now(),
+      last_used_at = now()
+  where public.push_subscriptions.user_id = current_user_id
+     or (
+       public.push_subscriptions.p256dh_key = excluded.p256dh_key
+       and public.push_subscriptions.auth_key = excluded.auth_key
+     )
+  returning id into subscription_id;
+
+  if subscription_id is null then
+    raise exception 'This push subscription belongs to another account.';
+  end if;
+
+  return subscription_id;
+end;
+$$;
+
+create or replace function public.delete_push_subscription(p_endpoint text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  deleted_count integer;
+begin
+  if auth.uid() is null then
+    raise exception 'You must be signed in to disable push notifications.';
+  end if;
+
+  delete from public.push_subscriptions
+  where user_id = auth.uid()
+    and endpoint = trim(coalesce(p_endpoint, ''));
+
+  get diagnostics deleted_count = row_count;
+  return deleted_count > 0;
+end;
+$$;
+
 drop trigger if exists property_inspections_lock_guard on public.property_inspections;
 create trigger property_inspections_lock_guard
 before update or delete on public.property_inspections
@@ -2294,6 +2437,11 @@ for each row execute function public.assign_enquiry_country_id();
 drop trigger if exists enquiries_touch_updated_at on public.enquiries;
 create trigger enquiries_touch_updated_at
 before update on public.enquiries
+for each row execute function public.touch_updated_at();
+
+drop trigger if exists push_subscriptions_touch_updated_at on public.push_subscriptions;
+create trigger push_subscriptions_touch_updated_at
+before update on public.push_subscriptions
 for each row execute function public.touch_updated_at();
 
 drop trigger if exists pricing_plans_touch_updated_at on public.pricing_plans;
@@ -8807,6 +8955,7 @@ alter table public.viewing_requests enable row level security;
 alter table public.lead_followups enable row level security;
 alter table public.lead_activity enable row level security;
 alter table public.notifications enable row level security;
+alter table public.push_subscriptions enable row level security;
 alter table public.tenant_applications enable row level security;
 alter table public.tenant_documents enable row level security;
 alter table public.lease_lifecycle_items enable row level security;
@@ -11259,6 +11408,11 @@ on public.notifications for all to authenticated
 using (profile_id = auth.uid())
 with check (profile_id = auth.uid());
 
+drop policy if exists "push subscriptions owner read" on public.push_subscriptions;
+create policy "push subscriptions owner read"
+on public.push_subscriptions for select to authenticated
+using (user_id = auth.uid());
+
 drop policy if exists "telegram tokens profile owner" on public.telegram_link_tokens;
 create policy "telegram tokens profile owner"
 on public.telegram_link_tokens for all to authenticated
@@ -13675,12 +13829,19 @@ grant usage on type
   public.notification_type
 to anon, authenticated;
 grant select, insert, update, delete on all tables in schema public to authenticated;
+revoke all on public.push_subscriptions from anon;
+revoke insert, update, delete on public.push_subscriptions from authenticated;
+grant select on public.push_subscriptions to authenticated;
 grant insert on public.enquiries to anon;
 grant select, update, delete on public.enquiries to authenticated;
 grant select on public.pricing_plans to anon, authenticated;
 grant insert, update, delete on public.pricing_plans to authenticated;
 revoke execute on function public.create_super_admin(text, text) from public, anon, authenticated;
 grant execute on function public.get_current_profile() to authenticated;
+revoke execute on function public.upsert_push_subscription(text, text, text, text, text, text, text) from public, anon;
+revoke execute on function public.delete_push_subscription(text) from public, anon;
+grant execute on function public.upsert_push_subscription(text, text, text, text, text, text, text) to authenticated;
+grant execute on function public.delete_push_subscription(text) to authenticated;
 grant execute on function public.is_super_admin_profile(uuid) to authenticated;
 grant execute on function public.admin_note_assignees() to authenticated;
 grant execute on function public.is_management_leader_for_company(uuid) to authenticated;
@@ -14793,13 +14954,7 @@ end $$;
 
 commit;
 
--- USAGE BLOCK - CREATE THE ONE SUPER ADMIN ACCOUNT
---
--- Replace the email and password below with your own, then run this SELECT once
--- in the Supabase SQL Editor. After running, delete or comment out the SELECT
--- line for security.
---
-SELECT public.create_super_admin(
-  'dhruvp246@gmail.com',
-  'Admin@123'
-);
+-- SUPER ADMIN BOOTSTRAP
+-- Create the initial super administrator only through a private, authenticated
+-- deployment process. Never store an administrator email or password in source
+-- control, SQL schema files, browser code, or deployment logs.
